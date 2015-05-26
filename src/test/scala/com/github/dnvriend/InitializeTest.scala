@@ -4,7 +4,7 @@ import akka.stream.scaladsl.Source
 import com.github.dnvriend.CoffeeRepository.Coffee
 import scala.collection.JavaConversions._
 
-class InitializeTest extends TestSpec {
+trait InitializeTest extends TestSpec {
   "DatabasePublisher" should "stream coffee" in {
     Source(CoffeeRepository.coffees).runFold(Seq.empty[Coffee]) {
       case (seq, coffee) => seq :+ coffee

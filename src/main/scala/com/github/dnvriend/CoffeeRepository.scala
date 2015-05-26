@@ -70,8 +70,5 @@ object CoffeeRepository {
     dropCreateSchema.flatMap(_ => db.run(setup))
   }
 
-  /**
-   * Returns a Stream of Coffee
-   */
   def coffees(implicit db: Database): DatabasePublisher[Coffee] = db.stream[Coffee](coffeesTQ.result)
 }

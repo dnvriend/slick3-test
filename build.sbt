@@ -9,7 +9,6 @@ libraryDependencies ++= {
   val streamsVersion = "1.0-RC3"
   Seq(
     "com.typesafe.akka"  %%  "akka-actor"                       % akkaVersion,
-    "com.typesafe.akka"  %%  "akka-kernel"                      % akkaVersion,
     "com.typesafe.akka"  %%  "akka-slf4j"                       % akkaVersion,
     "ch.qos.logback"      %  "logback-classic"                  % "1.1.2",
     "com.typesafe.akka"  %%  "akka-stream-experimental"         % streamsVersion,

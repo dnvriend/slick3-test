@@ -88,4 +88,13 @@ class QueryCoffeesTest extends TestSpec {
   it should "get the average price" in {
     db.run(coffees.map(_.price).avg.result).futureValue.value shouldBe 9.99
   }
+
+  it should "get the sum price" in {
+    db.run(coffees.map(_.price).sum.result).futureValue.value shouldBe 49.95
+  }
+
+  it should "get a coffee with limit and offset" in {
+    // select * from coffees limit 1 offset 2
+    db.run(coffees.drop(2).take(1).result).futureValue should not be 'empty
+  }
 }

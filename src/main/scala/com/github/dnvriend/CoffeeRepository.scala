@@ -86,5 +86,7 @@ object CoffeeRepository {
   def coffee(name: String)(implicit db: Database): Future[Seq[Coffee]] =
     db.run(coffees.filter(_.name === name).result)   
   
-  def listCoffees(limit: Long, offset: Long = Long.MaxValue)(implicit db: Database) = ???
+  def listCoffees(limit: Long, offset: Long = Long.MaxValue)(implicit db: Database) =
+  // select * from coffees limit $limit offset $offset
+    db.run(coffees.drop(offset).take(limit).result)
 }

@@ -4,7 +4,7 @@ import akka.actor._
 import akka.event.{Logging, LoggingAdapter}
 import akka.stream.{ActorFlowMaterializer, FlowMaterializer}
 import org.scalatest.concurrent.ScalaFutures
-import org.scalatest.{BeforeAndAfterAll, FlatSpec, Matchers}
+import org.scalatest._
 import spray.json.DefaultJsonProtocol
 import slick.driver.PostgresDriver.api._
 
@@ -12,7 +12,7 @@ import scala.concurrent.duration._
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Try
 
-trait TestSpec extends FlatSpec with Matchers with ScalaFutures with BeforeAndAfterAll with DefaultJsonProtocol {
+trait TestSpec extends FlatSpec with Matchers with ScalaFutures with OptionValues with BeforeAndAfterEach with BeforeAndAfterAll with DefaultJsonProtocol {
   implicit val system: ActorSystem = ActorSystem()
   implicit val ec: ExecutionContext = system.dispatcher
   implicit val flowMaterializer: FlowMaterializer = ActorFlowMaterializer()
@@ -22,6 +22,10 @@ trait TestSpec extends FlatSpec with Matchers with ScalaFutures with BeforeAndAf
 
   implicit class FutureToTry[T](f: Future[T]) {
     def toTry: Try[T] = Try(f.futureValue)
+  }
+
+  override protected def beforeEach(): Unit = {
+    CoffeeRepository.initialize.toTry should be a 'success
   }
 
   override protected def afterAll(): Unit = {

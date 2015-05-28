@@ -1,6 +1,8 @@
 # slick3-test
 A study into Slick 3, reactive-streams and RxScala/RxJava
 
+[![Build Status](https://travis-ci.org/dnvriend/slick3-test.svg?branch=master)](https://travis-ci.org/dnvriend/slick3-test)
+
 # Slick
 > [Slick](http://slick.typesafe.com) is a modern database query and access library for Scala. It allows you to work with stored data almost as if you were using Scala collections while at the same time giving you full control over when a database access happens and which data is transferred. You can write your database queries in Scala instead of SQL, thus profiting from the static checking, compile-time safety and compositionality of Scala. 
 

@@ -25,7 +25,14 @@ trait TestSpec extends FlatSpec with Matchers with ScalaFutures with OptionValue
   }
 
   override protected def beforeEach(): Unit = {
-    CoffeeRepository.initialize.toTry should be a 'success
+    CoffeeRepository.initialize
+      .flatMap(_ => PersonRepository.initialize)
+      .toTry should be a 'success
+  }
+
+  implicit class MustBeWord[T](self: T) {
+    def mustBe(pf: PartialFunction[T, Unit]): Unit =
+      if(!pf.isDefinedAt(self)) throw new TestFailedException("Unexpected: " + self, 0)
   }
 
   override protected def afterAll(): Unit = {

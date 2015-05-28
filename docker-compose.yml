@@ -1,4 +1,6 @@
 postgres:
   image: training/postgres
+  environment:
+    - "TZ=Europe/Amsterdam"
   ports:
     - "5432:5432"  # credentials (docker:docker)

@@ -13,7 +13,7 @@
         <appender-ref ref="console"/>
     </logger>
 
-    <logger name="spray" level="debug" additivity="false">
+    <logger name="spray" level="info" additivity="false">
         <appender-ref ref="console"/>
     </logger>
 

@@ -33,4 +33,12 @@ class PlainSqlTest extends TestSpec {
       Coffee("French_Roast_Decaf", 49, 9.99, 0, 0)
     )
   }
+
+  it should "select only coffee names where the price < 10" in {
+    val limit = 10.0
+    val actions = sql"""select "COF_NAME" from "COFFEES" where "PRICE" < $limit""".as[String]
+    db.run(actions).futureValue shouldBe
+      List("Colombian", "French_Roast", "French_Roast_Decaf")
+
+  }
 }

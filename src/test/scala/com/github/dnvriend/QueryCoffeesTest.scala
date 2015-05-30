@@ -77,6 +77,11 @@ class QueryCoffeesTest extends TestSpec {
       )
   }
 
+  it should "query for coffee names with a price less than 10, sorted by name" in {
+    db.run(coffees.filter(_.price < 10.0).sortBy(_.name).map(_.name).result).futureValue shouldBe
+      List("Colombian", "French_Roast", "French_Roast_Decaf")
+  }
+
   it should "get the max price" in {
     db.run(coffees.map(_.price).max.result).futureValue.value shouldBe 11.99
   }
@@ -93,8 +98,45 @@ class QueryCoffeesTest extends TestSpec {
     db.run(coffees.map(_.price).sum.result).futureValue.value shouldBe 49.95
   }
 
+  it should "get the name field only" in {
+    // SELECT NAME FROM COFFEES
+    db.run(coffees.map(_.name).result).futureValue shouldBe
+      List("Colombian", "French_Roast", "Espresso", "Colombian_Decaf", "French_Roast_Decaf")
+  }
+
+  it should "get coffees sorted by name, null values first" in {
+    db.run(coffees.sortBy(_.name.desc.nullsFirst).result).futureValue shouldBe
+      List(
+        Coffee("French_Roast_Decaf", 49, 9.99, 0, 0),
+        Coffee("French_Roast", 49, 8.99, 0, 0),
+        Coffee("Espresso", 150, 11.99, 0, 0),
+        Coffee("Colombian_Decaf", 101, 10.99, 0, 0),
+        Coffee("Colombian", 101, 7.99, 0, 0)
+      )
+  }
+
   it should "get a coffee with limit and offset" in {
     // select * from coffees limit 1 offset 2
     db.run(coffees.drop(2).take(1).result).futureValue should not be 'empty
+  }
+
+  it should "query for coffees using a criteria" in {
+    val criteriaColombian: Option[String] = Option("Colombian")
+    val criteriaEspresso: Option[String] = Option("Espresso")
+    val criteriaRoast: Option[String] = None
+
+    val q = coffees.filter { coffee =>
+      List(
+        criteriaColombian.map(coffee.name === _),
+        criteriaEspresso.map(coffee.name === _),
+        criteriaRoast.map(coffee.name === _) // not a condition as `criteriaRoast` evaluates to `None`
+      ).collect({ case Some(criteria)  => criteria }).reduceLeftOption(_ || _).getOrElse(true:Column[Boolean])
+    }
+
+    q.result.statements.foreach(println)
+    db.run(q.result).futureValue shouldBe List(
+      Coffee("Colombian", 101, 7.99, 0, 0),
+      Coffee("Espresso", 150, 11.99, 0, 0)
+    )
   }
 }

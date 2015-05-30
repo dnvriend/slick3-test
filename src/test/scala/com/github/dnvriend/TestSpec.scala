@@ -11,6 +11,7 @@ import slick.driver.PostgresDriver.api._
 import scala.concurrent.duration._
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Try
+import scala.util.Failure
 
 trait TestSpec extends FlatSpec with Matchers with ScalaFutures with OptionValues with BeforeAndAfterEach with BeforeAndAfterAll with DefaultJsonProtocol {
   implicit val system: ActorSystem = ActorSystem()
@@ -27,7 +28,8 @@ trait TestSpec extends FlatSpec with Matchers with ScalaFutures with OptionValue
   override protected def beforeEach(): Unit = {
     CoffeeRepository.initialize
       .flatMap(_ => PersonRepository.initialize)
-      .toTry should be a 'success
+      .flatMap(_ => UsersRepository.initialize)
+      .toTry recoverWith { case t: Throwable => log.error(t, ""); Failure(t) } should be a 'success
   }
 
   implicit class MustBeWord[T](self: T) {

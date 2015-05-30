@@ -39,7 +39,7 @@ object PersonRepository {
   }
 
   /**
-   * Initializes the database; creates the schema and inserts supplies and coffees
+   * Initializes the database; creates the schema and inserts persons
    */
   def initialize(implicit db: Database, ec: ExecutionContext): Future[Unit] = {
     val setup = DBIO.seq(

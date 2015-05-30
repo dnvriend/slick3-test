@@ -3,6 +3,7 @@ package com.github.dnvriend
 import slick.driver.PostgresDriver.api._
 
 class PlainSqlTest extends TestSpec {
+
   import CoffeeRepository._
 
   /**

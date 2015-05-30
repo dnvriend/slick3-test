@@ -6,6 +6,12 @@ class QueryCoffeesTest extends TestSpec {
 
   import CoffeeRepository._
 
+  /**
+   * A Query can be converted into an Action by calling its `result` method.
+   * The Action can then be executed directly in a streaming or fully materialized way,
+   * or composed further with other Actions.
+   */
+
   "Coffees" should "determine whether there are records in the table" in {
     // SELECT COUNT(1) FROM COFFEES
     db.run(coffees.exists.result).futureValue shouldBe true
@@ -14,6 +20,16 @@ class QueryCoffeesTest extends TestSpec {
   it should "count records" in {
     // SELECT EXISTS(SELECT * FROM COFFEES)
     db.run(coffees.length.result).futureValue shouldBe 5
+  }
+
+  it should "get only a single result value" in {
+    db.run(coffees.result.head).futureValue shouldBe
+      Coffee("Colombian",101,7.99,0,0)
+  }
+
+  it should "get only a single result option value" in {
+    db.run(coffees.result.headOption).futureValue shouldBe
+      Option(Coffee("Colombian",101,7.99,0,0) )
   }
 
   it should "add a record and query the new record" in {
@@ -130,10 +146,11 @@ class QueryCoffeesTest extends TestSpec {
         criteriaColombian.map(coffee.name === _),
         criteriaEspresso.map(coffee.name === _),
         criteriaRoast.map(coffee.name === _) // not a condition as `criteriaRoast` evaluates to `None`
-      ).collect({ case Some(criteria)  => criteria }).reduceLeftOption(_ || _).getOrElse(true:Column[Boolean])
+      ).collect({ case Some(criteria) => criteria }).reduceLeftOption(_ || _).getOrElse(true: Column[Boolean])
     }
 
-    q.result.statements.foreach(println)
+//    q.result.statements.foreach(println)
+
     db.run(q.result).futureValue shouldBe List(
       Coffee("Colombian", 101, 7.99, 0, 0),
       Coffee("Espresso", 150, 11.99, 0, 0)

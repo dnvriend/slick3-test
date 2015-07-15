@@ -2,7 +2,7 @@ package com.github.dnvriend
 
 import akka.actor._
 import akka.event.{Logging, LoggingAdapter}
-import akka.stream.{ActorFlowMaterializer, FlowMaterializer}
+import akka.stream.{Materializer, ActorMaterializer}
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest._
 import spray.json.DefaultJsonProtocol
@@ -16,7 +16,7 @@ import scala.util.Failure
 trait TestSpec extends FlatSpec with Matchers with ScalaFutures with OptionValues with BeforeAndAfterEach with BeforeAndAfterAll with DefaultJsonProtocol {
   implicit val system: ActorSystem = ActorSystem()
   implicit val ec: ExecutionContext = system.dispatcher
-  implicit val flowMaterializer: FlowMaterializer = ActorFlowMaterializer()
+  implicit val mat: Materializer = ActorMaterializer()
   implicit val log: LoggingAdapter = Logging(system, this.getClass)
   implicit val pc: PatienceConfig = PatienceConfig(timeout = 50.seconds)
   implicit val db: Database = DbExtension(system).db

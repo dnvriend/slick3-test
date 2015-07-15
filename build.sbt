@@ -2,11 +2,11 @@ name := "slick3-test"
 
 version := "1.0"
 
-scalaVersion := "2.11.6"
+scalaVersion := "2.11.7"
 
 libraryDependencies ++= {
-  val akkaVersion    = "2.3.11"
-  val streamsVersion = "1.0-RC3"
+  val akkaVersion    = "2.3.12"
+  val streamsVersion = "1.0"
   Seq(
     "com.typesafe.akka"  %%  "akka-actor"                       % akkaVersion,
     "com.typesafe.akka"  %%  "akka-slf4j"                       % akkaVersion,

@@ -146,7 +146,7 @@ class QueryCoffeesTest extends TestSpec {
         criteriaColombian.map(coffee.name === _),
         criteriaEspresso.map(coffee.name === _),
         criteriaRoast.map(coffee.name === _) // not a condition as `criteriaRoast` evaluates to `None`
-      ).collect({ case Some(criteria) => criteria }).reduceLeftOption(_ || _).getOrElse(true: Column[Boolean])
+      ).collect({ case Some(criteria) => criteria }).reduceLeftOption(_ || _).getOrElse(slick.lifted.LiteralColumn[Boolean](true))
     }
 
 //    q.result.statements.foreach(println)

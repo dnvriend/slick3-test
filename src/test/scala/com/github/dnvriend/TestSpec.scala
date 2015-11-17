@@ -5,6 +5,7 @@ import akka.event.{Logging, LoggingAdapter}
 import akka.stream.{Materializer, ActorMaterializer}
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest._
+import org.scalatest.exceptions._
 import spray.json.DefaultJsonProtocol
 import slick.driver.PostgresDriver.api._
 

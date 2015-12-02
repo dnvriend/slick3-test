@@ -16,7 +16,7 @@
 
 package com.github.dnvriend
 
-import slick.driver.PostgresDriver.api._
+import slick.driver.H2Driver.api._
 
 class ApplicativeJoinTest extends TestSpec {
 

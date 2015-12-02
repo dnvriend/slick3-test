@@ -20,8 +20,8 @@ import java.sql.{ Date, Timestamp }
 import java.text.SimpleDateFormat
 import java.util.UUID
 
-import slick.driver.PostgresDriver
-import slick.driver.PostgresDriver.api._
+import slick.dbio.DBIO
+import slick.driver.H2Driver.api._
 
 import scala.concurrent.{ ExecutionContext, Future }
 
@@ -47,7 +47,7 @@ object PersonRepository {
   val persons: TableQuery[PersonRepository.Persons] = TableQuery[Persons]
 
   def dropCreateSchema(implicit db: Database, ec: ExecutionContext): Future[Unit] = {
-    val schema: PostgresDriver.SchemaDescription = persons.schema
+    val schema = persons.schema
     db.run(schema.create)
       .recoverWith {
         case t: Throwable ⇒

@@ -17,8 +17,8 @@
 package com.github.dnvriend
 
 import slick.backend.DatabasePublisher
-import slick.driver.PostgresDriver
-import slick.driver.PostgresDriver.api._
+import slick.dbio.DBIO
+import slick.driver.H2Driver.api._
 import slick.jdbc.GetResult
 
 import scala.concurrent.{ ExecutionContext, Future }
@@ -57,7 +57,7 @@ object CoffeeRepository {
   val coffees: TableQuery[CoffeeRepository.Coffees] = TableQuery[Coffees]
 
   def dropCreateSchema(implicit db: Database, ec: ExecutionContext): Future[Unit] = {
-    val schema: PostgresDriver.DDL = suppliers.schema ++ coffees.schema
+    val schema = suppliers.schema ++ coffees.schema
     db.run(schema.create)
       .recoverWith {
         case t: Throwable ⇒

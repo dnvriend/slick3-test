@@ -132,7 +132,7 @@ class QueryCoffeesTest extends TestSpec {
 
   it should "get the name field only" in {
     // SELECT NAME FROM COFFEES
-    db.run(coffees.map(_.name).result).futureValue shouldBe
+    db.run(coffees.map(_.name).result).futureValue should contain theSameElementsAs
       List("Colombian", "French_Roast", "Espresso", "Colombian_Decaf", "French_Roast_Decaf")
   }
 

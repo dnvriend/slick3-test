@@ -39,7 +39,7 @@ class ApplicativeJoinTest extends TestSpec {
       (c, s) ← coffees join suppliers
     } yield (c.name, s.name)
 
-    db.run(crossJoin.result).futureValue shouldBe List(
+    db.run(crossJoin.result).futureValue should contain theSameElementsAs List(
       ("Colombian", "Acme, Inc."),
       ("Colombian", "Superior Coffee"),
       ("Colombian", "The High Ground"),
@@ -63,7 +63,7 @@ class ApplicativeJoinTest extends TestSpec {
       (c, s) ← coffees join suppliers on (_.supID === _.id)
     } yield (c.name, s.name)
 
-    db.run(innerJoin.result).futureValue shouldBe List(
+    db.run(innerJoin.result).futureValue should contain theSameElementsAs List(
       ("Colombian", "Acme, Inc."),
       ("French_Roast", "Superior Coffee"),
       ("Espresso", "The High Ground"),
@@ -84,7 +84,7 @@ class ApplicativeJoinTest extends TestSpec {
       (c, s) ← coffees joinLeft suppliers on (_.supID === _.id)
     } yield (c.name, s.map(_.name))
 
-    db.run(leftOuterJoin.result).futureValue shouldBe List(
+    db.run(leftOuterJoin.result).futureValue should contain theSameElementsAs List(
       ("Colombian", Some("Acme, Inc.")),
       ("French_Roast", Some("Superior Coffee")),
       ("Espresso", Some("The High Ground")),
@@ -98,7 +98,7 @@ class ApplicativeJoinTest extends TestSpec {
       (c, s) ← coffees joinRight suppliers on (_.supID === _.id)
     } yield (c.map(_.name), s.name)
 
-    db.run(rightOuterJoin.result).futureValue shouldBe List(
+    db.run(rightOuterJoin.result).futureValue should contain theSameElementsAs List(
       (Some("Colombian"), "Acme, Inc."),
       (Some("French_Roast"), "Superior Coffee"),
       (Some("Espresso"), "The High Ground"),
@@ -112,7 +112,7 @@ class ApplicativeJoinTest extends TestSpec {
       (c, s) ← coffees joinFull suppliers on (_.supID === _.id)
     } yield (c.map(_.name), s.map(_.name))
 
-    db.run(fullOuterJoin.result).futureValue shouldBe List(
+    db.run(fullOuterJoin.result).futureValue should contain theSameElementsAs List(
       (Some("Colombian"), Some("Acme, Inc.")),
       (Some("French_Roast"), Some("Superior Coffee")),
       (Some("Espresso"), Some("The High Ground")),

@@ -42,7 +42,7 @@ class GroupingTest extends TestSpec {
         (supID, css.length, css.map(_._1.price).avg)
     }
 
-    db.run(q2.result).futureValue shouldBe List(
+    db.run(q2.result).futureValue should contain theSameElementsAs List(
       (101, 2, Some(9.49)),
       (49, 2, Some(9.49)),
       (150, 1, Some(11.99))

@@ -44,7 +44,7 @@ class MonadicJoinTest extends TestSpec {
       s ← suppliers
     } yield (c.name, s.name)
 
-    db.run(monadicCrossJoin.result).futureValue shouldBe List(
+    db.run(monadicCrossJoin.result).futureValue should contain theSameElementsAs List(
       ("Colombian", "Acme, Inc."),
       ("Colombian", "Superior Coffee"),
       ("Colombian", "The High Ground"),
@@ -70,7 +70,7 @@ class MonadicJoinTest extends TestSpec {
       s ← suppliers if c.supID === s.id
     } yield (c.name, s.name)
 
-    db.run(monadicInnerJoin.result).futureValue shouldBe List(
+    db.run(monadicInnerJoin.result).futureValue should contain theSameElementsAs List(
       ("Colombian", "Acme, Inc."),
       ("French_Roast", "Superior Coffee"),
       ("Espresso", "The High Ground"),

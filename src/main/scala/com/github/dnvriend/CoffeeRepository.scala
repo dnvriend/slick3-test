@@ -17,6 +17,7 @@
 package com.github.dnvriend
 
 import slick.backend.DatabasePublisher
+import slick.driver.PostgresDriver
 import slick.driver.PostgresDriver.api._
 import slick.jdbc.GetResult
 
@@ -38,7 +39,7 @@ object CoffeeRepository {
   }
 
   case class Coffee(name: String, supID: Int, price: Double, sales: Int, total: Int)
-  implicit val resultToCoffeeMapper = GetResult(r ⇒ Coffee(r.<<, r.<<, r.<<, r.<<, r.<<))
+  implicit val resultToCoffeeMapper: GetResult[CoffeeRepository.Coffee] = GetResult(r ⇒ Coffee(r.<<, r.<<, r.<<, r.<<, r.<<))
 
   // Definition of the COFFEES table
   class Coffees(tag: Tag) extends Table[Coffee](tag, "COFFEES") {
@@ -52,11 +53,11 @@ object CoffeeRepository {
     def supplier = foreignKey("SUP_FK", supID, suppliers)(_.id)
   }
 
-  val suppliers = TableQuery[Suppliers]
-  val coffees = TableQuery[Coffees]
+  val suppliers: TableQuery[CoffeeRepository.Suppliers] = TableQuery[Suppliers]
+  val coffees: TableQuery[CoffeeRepository.Coffees] = TableQuery[Coffees]
 
   def dropCreateSchema(implicit db: Database, ec: ExecutionContext): Future[Unit] = {
-    val schema = suppliers.schema ++ coffees.schema
+    val schema: PostgresDriver.DDL = suppliers.schema ++ coffees.schema
     db.run(schema.create)
       .recoverWith {
         case t: Throwable ⇒
@@ -68,7 +69,7 @@ object CoffeeRepository {
    * Initializes the database; creates the schema and inserts supplies and coffees
    */
   def initialize(implicit db: Database, ec: ExecutionContext): Future[Unit] = {
-    val setup = DBIO.seq(
+    val setup: DBIOAction[Unit, NoStream, Effect.Write] = DBIO.seq(
       // Insert some suppliers
       suppliers += Supplier(101, "Acme, Inc.", "99 Market Street", "Groundsville", "CA", "95199"),
       suppliers += Supplier(49, "Superior Coffee", "1 Party Place", "Mendocino", "CA", "95460"),

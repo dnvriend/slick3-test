@@ -20,6 +20,7 @@ import java.sql.{ Date, Timestamp }
 import java.text.SimpleDateFormat
 import java.util.UUID
 
+import slick.driver.PostgresDriver
 import slick.driver.PostgresDriver.api._
 
 import scala.concurrent.{ ExecutionContext, Future }
@@ -43,10 +44,10 @@ object PersonRepository {
     def * = (name, dateOfBirth, created, id) <> (Person.tupled, Person.unapply)
   }
 
-  val persons = TableQuery[Persons]
+  val persons: TableQuery[PersonRepository.Persons] = TableQuery[Persons]
 
   def dropCreateSchema(implicit db: Database, ec: ExecutionContext): Future[Unit] = {
-    val schema = persons.schema
+    val schema: PostgresDriver.SchemaDescription = persons.schema
     db.run(schema.create)
       .recoverWith {
         case t: Throwable ⇒
@@ -58,7 +59,7 @@ object PersonRepository {
    * Initializes the database; creates the schema and inserts persons
    */
   def initialize(implicit db: Database, ec: ExecutionContext): Future[Unit] = {
-    val setup = DBIO.seq(
+    val setup: DBIOAction[Unit, NoStream, Effect.Write] = DBIO.seq(
       // Insert some persons
       persons += Person("Arnold Schwarzenegger", "1947-07-30".date),
       persons += Person("Bruce Willis", "1955-03-19".date),

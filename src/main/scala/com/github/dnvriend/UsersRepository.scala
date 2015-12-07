@@ -16,6 +16,7 @@
 
 package com.github.dnvriend
 
+import slick.driver.PostgresDriver
 import slick.driver.PostgresDriver.api._
 
 import scala.concurrent.{ ExecutionContext, Future }
@@ -30,10 +31,10 @@ object UsersRepository {
     def last = column[String]("last")
     def * = (id.?, first, last) <> (User.tupled, User.unapply)
   }
-  val users = TableQuery[Users]
+  val users: TableQuery[UsersRepository.Users] = TableQuery[Users]
 
   def dropCreateSchema(implicit db: Database, ec: ExecutionContext): Future[Unit] = {
-    val schema = users.schema
+    val schema: PostgresDriver.SchemaDescription = users.schema
     db.run(schema.create)
       .recoverWith {
         case t: Throwable ⇒
@@ -45,7 +46,7 @@ object UsersRepository {
    * Initializes the database; creates the schema and inserts users
    */
   def initialize(implicit db: Database, ec: ExecutionContext): Future[Unit] = {
-    val setup = DBIO.seq(
+    val setup: DBIOAction[Unit, NoStream, Effect.Write] = DBIO.seq(
       users += User(None, "Bill", "Gates"),
       users += User(None, "Steve", "Balmer"),
       users += User(None, "Steve", "Jobs"),

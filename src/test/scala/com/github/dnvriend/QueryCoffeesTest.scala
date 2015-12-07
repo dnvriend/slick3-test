@@ -1,3 +1,19 @@
+/*
+ * Copyright 2015 Dennis Vriend
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.github.dnvriend
 
 import slick.driver.PostgresDriver.api._
@@ -24,18 +40,18 @@ class QueryCoffeesTest extends TestSpec {
 
   it should "get only a single result value" in {
     db.run(coffees.result.head).futureValue shouldBe
-      Coffee("Colombian",101,7.99,0,0)
+      Coffee("Colombian", 101, 7.99, 0, 0)
   }
 
   it should "get only a single result option value" in {
     db.run(coffees.result.headOption).futureValue shouldBe
-      Option(Coffee("Colombian",101,7.99,0,0) )
+      Option(Coffee("Colombian", 101, 7.99, 0, 0))
   }
 
   it should "add a record and query the new record" in {
     // INSERT a coffee AND SELECT it
     db.run(coffees += Coffee("Foo", 49, 12.99, 0, 0))
-      .flatMap(_ => db.run(coffees.filter(_.name === "Foo").result))
+      .flatMap(_ ⇒ db.run(coffees.filter(_.name === "Foo").result))
       .futureValue.head shouldBe Coffee("Foo", 49, 12.99, 0, 0)
   }
 
@@ -83,7 +99,7 @@ class QueryCoffeesTest extends TestSpec {
 
   it should "sort on two fields" in {
     // SELECT * FROM COFFEES ORDER BY NAME ASC, PRICE DESC
-    db.run(coffees.sortBy(c => (c.name.desc, c.price.desc)).result).futureValue shouldBe
+    db.run(coffees.sortBy(c ⇒ (c.name.desc, c.price.desc)).result).futureValue shouldBe
       List(
         Coffee("French_Roast_Decaf", 49, 9.99, 0, 0),
         Coffee("French_Roast", 49, 8.99, 0, 0),
@@ -141,15 +157,15 @@ class QueryCoffeesTest extends TestSpec {
     val criteriaEspresso: Option[String] = Option("Espresso")
     val criteriaRoast: Option[String] = None
 
-    val q = coffees.filter { coffee =>
+    val q = coffees.filter { coffee ⇒
       List(
         criteriaColombian.map(coffee.name === _),
         criteriaEspresso.map(coffee.name === _),
         criteriaRoast.map(coffee.name === _) // not a condition as `criteriaRoast` evaluates to `None`
-      ).collect({ case Some(criteria) => criteria }).reduceLeftOption(_ || _).getOrElse(slick.lifted.LiteralColumn[Boolean](true))
+      ).collect({ case Some(criteria) ⇒ criteria }).reduceLeftOption(_ || _).getOrElse(slick.lifted.LiteralColumn[Boolean](true))
     }
 
-//    q.result.statements.foreach(println)
+    //    q.result.statements.foreach(println)
 
     db.run(q.result).futureValue shouldBe List(
       Coffee("Colombian", 101, 7.99, 0, 0),

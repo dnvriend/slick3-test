@@ -1,3 +1,19 @@
+/*
+ * Copyright 2015 Dennis Vriend
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.github.dnvriend
 
 import slick.driver.PostgresDriver.api._
@@ -38,7 +54,7 @@ class InsertTest extends TestSpec {
     val userIdAction = (users returning users.map(_.id)) += User(None, "Stefan", "Zeiger")
     // the returning method where you specify the columns to be returned
     // (as a single value or tuple from += and a Seq of such values from ++=)
-    db.run(userIdAction).futureValue shouldBe an [java.lang.Integer]
+    db.run(userIdAction).futureValue shouldBe an[java.lang.Integer]
   }
 
   it should "map the auto-generated primary key for a user into the case class" in {
@@ -47,11 +63,11 @@ class InsertTest extends TestSpec {
     // using this feature to return an object with an updated id.
     val userWithIdAction =
       (users returning users.map(_.id)
-        into ((user,id) => user.copy(id = Option(id)))
-        ) += User(None, "Stefan", "Zeiger") // don't you like functional style :)
+        into ((user, id) ⇒ user.copy(id = Option(id)))
+      ) += User(None, "Stefan", "Zeiger") // don't you like functional style :)
 
     db.run(userWithIdAction).futureValue mustBe {
-      case User(Some(id), "Stefan", "Zeiger") if id > 4=>
+      case User(Some(id), "Stefan", "Zeiger") if id > 4 ⇒
     }
   }
 }

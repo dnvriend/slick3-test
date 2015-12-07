@@ -1,3 +1,19 @@
+/*
+ * Copyright 2015 Dennis Vriend
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.github.dnvriend
 
 import slick.driver.PostgresDriver.api._
@@ -24,8 +40,8 @@ class MonadicJoinTest extends TestSpec {
 
   "MonadicJoin" should "crossJoin" in {
     val monadicCrossJoin = for {
-      c <- coffees
-      s <- suppliers
+      c ← coffees
+      s ← suppliers
     } yield (c.name, s.name)
 
     db.run(monadicCrossJoin.result).futureValue shouldBe List(
@@ -50,8 +66,8 @@ class MonadicJoinTest extends TestSpec {
   it should "innerJoin" in {
     // If you add a filter expression, it becomes an inner join:
     val monadicInnerJoin = for {
-      c <- coffees
-      s <- suppliers if c.supID === s.id
+      c ← coffees
+      s ← suppliers if c.supID === s.id
     } yield (c.name, s.name)
 
     db.run(monadicInnerJoin.result).futureValue shouldBe List(

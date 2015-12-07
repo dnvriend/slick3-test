@@ -1,3 +1,19 @@
+/*
+ * Copyright 2015 Dennis Vriend
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.github.dnvriend
 
 import slick.driver.PostgresDriver.api._
@@ -20,7 +36,7 @@ class ApplicativeJoinTest extends TestSpec {
 
   "Applicative Joins" should "crossjoin" in {
     val crossJoin = for {
-      (c, s) <- coffees join suppliers
+      (c, s) ← coffees join suppliers
     } yield (c.name, s.name)
 
     db.run(crossJoin.result).futureValue shouldBe List(
@@ -44,7 +60,7 @@ class ApplicativeJoinTest extends TestSpec {
 
   it should "innerJoin" in {
     val innerJoin = for {
-      (c, s) <- coffees join suppliers on (_.supID === _.id)
+      (c, s) ← coffees join suppliers on (_.supID === _.id)
     } yield (c.name, s.name)
 
     db.run(innerJoin.result).futureValue shouldBe List(
@@ -65,7 +81,7 @@ class ApplicativeJoinTest extends TestSpec {
 
   it should "leftOuterJoin" in {
     val leftOuterJoin = for {
-      (c, s) <- coffees joinLeft suppliers on (_.supID === _.id)
+      (c, s) ← coffees joinLeft suppliers on (_.supID === _.id)
     } yield (c.name, s.map(_.name))
 
     db.run(leftOuterJoin.result).futureValue shouldBe List(
@@ -79,7 +95,7 @@ class ApplicativeJoinTest extends TestSpec {
 
   it should "rightOuterJoin" in {
     val rightOuterJoin = for {
-      (c, s) <- coffees joinRight suppliers on (_.supID === _.id)
+      (c, s) ← coffees joinRight suppliers on (_.supID === _.id)
     } yield (c.map(_.name), s.name)
 
     db.run(rightOuterJoin.result).futureValue shouldBe List(
@@ -93,7 +109,7 @@ class ApplicativeJoinTest extends TestSpec {
 
   it should "fullOuterJoin" in {
     val fullOuterJoin = for {
-      (c, s) <- coffees joinFull suppliers on (_.supID === _.id)
+      (c, s) ← coffees joinFull suppliers on (_.supID === _.id)
     } yield (c.map(_.name), s.map(_.name))
 
     db.run(fullOuterJoin.result).futureValue shouldBe List(

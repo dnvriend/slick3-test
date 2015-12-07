@@ -1,6 +1,8 @@
 postgres:
-  image: training/postgres
+  image: postgres:latest
   environment:
     - "TZ=Europe/Amsterdam"
+    - "POSTGRES_USER=docker"
+    - "POSTGRES_PASSWORD=docker"
   ports:
     - "5432:5432"  # credentials (docker:docker)

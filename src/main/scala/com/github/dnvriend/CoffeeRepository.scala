@@ -1,11 +1,26 @@
+/*
+ * Copyright 2015 Dennis Vriend
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.github.dnvriend
 
 import slick.backend.DatabasePublisher
-import slick.dbio.DBIO
 import slick.driver.PostgresDriver.api._
 import slick.jdbc.GetResult
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.{ ExecutionContext, Future }
 
 object CoffeeRepository {
 
@@ -23,7 +38,7 @@ object CoffeeRepository {
   }
 
   case class Coffee(name: String, supID: Int, price: Double, sales: Int, total: Int)
-  implicit val resultToCoffeeMapper = GetResult(r => Coffee(r.<<, r.<<, r.<<, r.<<, r.<<))
+  implicit val resultToCoffeeMapper = GetResult(r ⇒ Coffee(r.<<, r.<<, r.<<, r.<<, r.<<))
 
   // Definition of the COFFEES table
   class Coffees(tag: Tag) extends Table[Coffee](tag, "COFFEES") {
@@ -43,9 +58,10 @@ object CoffeeRepository {
   def dropCreateSchema(implicit db: Database, ec: ExecutionContext): Future[Unit] = {
     val schema = suppliers.schema ++ coffees.schema
     db.run(schema.create)
-      .recoverWith { case t: Throwable =>
-      db.run(DBIO.seq(schema.drop, schema.create))
-    }
+      .recoverWith {
+        case t: Throwable ⇒
+          db.run(DBIO.seq(schema.drop, schema.create))
+      }
   }
 
   /**
@@ -69,7 +85,7 @@ object CoffeeRepository {
         Coffee("French_Roast_Decaf", 49, 9.99, 0, 0)
       )
     )
-    dropCreateSchema.flatMap(_ => db.run(setup))
+    dropCreateSchema.flatMap(_ ⇒ db.run(setup))
   }
 
   def deleteCoffeeByName(name: String)(implicit db: Database): Future[Int] =
@@ -84,9 +100,9 @@ object CoffeeRepository {
     db.stream[Coffee](coffees.result)
 
   def coffee(name: String)(implicit db: Database): Future[Seq[Coffee]] =
-    db.run(coffees.filter(_.name === name).result)   
-  
+    db.run(coffees.filter(_.name === name).result)
+
   def listCoffees(limit: Long, offset: Long = Long.MaxValue)(implicit db: Database) =
-  // select * from coffees limit $limit offset $offset
+    // select * from coffees limit $limit offset $offset
     db.run(coffees.drop(offset).take(limit).result)
 }

@@ -55,7 +55,7 @@ trait TestSpec extends FlatSpec with Matchers with ScalaFutures with OptionValue
   }
 
   override protected def afterAll(): Unit = {
-    system.shutdown()
-    system.awaitTermination()
+    system.terminate()
+    system.whenTerminated.futureValue
   }
 }

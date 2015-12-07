@@ -1,8 +1,6 @@
 # slick3-test
 A study on Slick 3, reactive-streams and RxScala/RxJava
 
-[![Build Status](https://travis-ci.org/dnvriend/slick3-test.svg?branch=master)](https://travis-ci.org/dnvriend/slick3-test)
-
 # Slick
 > [Slick](http://slick.typesafe.com) (“Scala Language-Integrated Connection Kit”) is Typesafe‘s Functional Relational Mapping (FRM) library for Scala that makes it easy to work with relational databases. It allows you to work with stored data almost as if you were using Scala collections while at the same time giving you full control over when a database access happens and which data is transferred. You can also use SQL directly. Execution of database actions is done asynchronously, making Slick a perfect fit for your reactive applications based on Play and Akka.
 

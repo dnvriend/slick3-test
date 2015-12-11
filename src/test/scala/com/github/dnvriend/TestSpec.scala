@@ -16,9 +16,8 @@
 
 package com.github.dnvriend
 
-import akka.actor._
-import akka.event.{ Logging, LoggingAdapter }
-import akka.stream.{ Materializer, ActorMaterializer }
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest._
 import org.scalatest.exceptions._
@@ -30,13 +29,11 @@ import scala.concurrent.{ ExecutionContext, Future }
 import scala.util.Try
 import scala.util.Failure
 
-trait TestSpec extends FlatSpec with Matchers with ScalaFutures with OptionValues with BeforeAndAfterEach with BeforeAndAfterAll with DefaultJsonProtocol {
-  implicit val system: ActorSystem = ActorSystem()
-  implicit val ec: ExecutionContext = system.dispatcher
-  implicit val mat: Materializer = ActorMaterializer()
-  implicit val log: LoggingAdapter = Logging(system, this.getClass)
+trait TestSpec extends FlatSpecLike with Matchers with ScalaFutures with OptionValues with BeforeAndAfterEach with BeforeAndAfterAll with DefaultJsonProtocol {
+  implicit val ec: ExecutionContext = ExecutionContext.Implicits.global
   implicit val pc: PatienceConfig = PatienceConfig(timeout = 50.seconds)
-  implicit val db: Database = DbExtension(system).db
+  val log: Logger = LoggerFactory.getLogger(this.getClass)
+  implicit val db: Database = Database.forConfig("mydb")
 
   implicit class FutureToTry[T](f: Future[T]) {
     def toTry: Try[T] = Try(f.futureValue)
@@ -46,7 +43,7 @@ trait TestSpec extends FlatSpec with Matchers with ScalaFutures with OptionValue
     CoffeeRepository.initialize
       .flatMap(_ ⇒ PersonRepository.initialize)
       .flatMap(_ ⇒ UsersRepository.initialize)
-      .toTry recover { case t: Throwable ⇒ log.error(t, "Could not initialize the database") } should be a 'success
+      .toTry recover { case t: Throwable ⇒ log.error("Could not initialize the database", t) } should be a 'success
   }
 
   implicit class MustBeWord[T](self: T) {
@@ -55,7 +52,5 @@ trait TestSpec extends FlatSpec with Matchers with ScalaFutures with OptionValue
   }
 
   override protected def afterAll(): Unit = {
-    system.terminate()
-    system.whenTerminated.futureValue
   }
 }

@@ -27,17 +27,19 @@ class BatchInsertTest extends TestSpec {
     db.run(coffees.delete).futureValue
     db.run(coffees.length.result).futureValue shouldBe 0
 
-    When("1005 coffee object are created and batch inserted 100 a time")
+    val numberOfRecords = 45005
+
+    When(s"$numberOfRecords coffee object are created and batch inserted 100 a time")
     val batch = Source(() ⇒ Iterator from 1)
-      .take(1005)
+      .take(numberOfRecords)
       .map(i ⇒ Coffee(s"Coffee-$i", 101, i.toDouble, i, i))
       .grouped(100)
       .mapAsync(1)(seqOfCoffees ⇒ db.run(coffees ++= seqOfCoffees))
       .runFold(0L) { (c, result) ⇒ c + result.getOrElse(0) }
-      .futureValue shouldBe 1005
+      .futureValue shouldBe numberOfRecords
 
-    Then("1005 coffee entries should be persisted")
-    db.run(coffees.length.result).futureValue shouldBe 1005
+    Then(s"$numberOfRecords coffee entries should be persisted")
+    db.run(coffees.length.result).futureValue shouldBe numberOfRecords
   }
 }
 

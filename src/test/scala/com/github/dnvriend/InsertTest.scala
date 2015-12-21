@@ -66,7 +66,7 @@ class InsertTest extends TestSpec {
         into ((user, id) ⇒ user.copy(id = Option(id)))
       ) += User(None, "Stefan", "Zeiger") // don't you like functional style :)
 
-    db.run(userWithIdAction).futureValue mustBe {
+    db.run(userWithIdAction).futureValue should matchPattern {
       case User(Some(id), "Stefan", "Zeiger") if id > 4 ⇒
     }
   }

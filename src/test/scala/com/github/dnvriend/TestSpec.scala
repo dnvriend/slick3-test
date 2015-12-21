@@ -18,19 +18,17 @@ package com.github.dnvriend
 
 import akka.actor._
 import akka.event.{ Logging, LoggingAdapter }
-import akka.stream.{ Materializer, ActorMaterializer }
-import org.scalatest.concurrent.ScalaFutures
+import akka.stream.{ ActorMaterializer, Materializer }
 import org.scalatest._
-import org.scalatest.exceptions._
-import spray.json.DefaultJsonProtocol
+import org.scalatest.concurrent.ScalaFutures
 import slick.driver.PostgresDriver.api._
+import spray.json.DefaultJsonProtocol
 
 import scala.concurrent.duration._
 import scala.concurrent.{ ExecutionContext, Future }
 import scala.util.Try
-import scala.util.Failure
 
-trait TestSpec extends FlatSpec with Matchers with ScalaFutures with OptionValues with BeforeAndAfterEach with BeforeAndAfterAll with DefaultJsonProtocol {
+trait TestSpec extends FlatSpec with Matchers with ScalaFutures with OptionValues with BeforeAndAfterEach with BeforeAndAfterAll with DefaultJsonProtocol with GivenWhenThen {
   implicit val system: ActorSystem = ActorSystem()
   implicit val ec: ExecutionContext = system.dispatcher
   implicit val mat: Materializer = ActorMaterializer()
@@ -47,11 +45,6 @@ trait TestSpec extends FlatSpec with Matchers with ScalaFutures with OptionValue
       .flatMap(_ ⇒ PersonRepository.initialize)
       .flatMap(_ ⇒ UsersRepository.initialize)
       .toTry recover { case t: Throwable ⇒ log.error(t, "Could not initialize the database") } should be a 'success
-  }
-
-  implicit class MustBeWord[T](self: T) {
-    def mustBe(pf: PartialFunction[T, Unit]): Unit =
-      if (!pf.isDefinedAt(self)) throw new TestFailedException("Unexpected: " + self, 0)
   }
 
   override protected def afterAll(): Unit = {

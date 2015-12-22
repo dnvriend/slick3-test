@@ -9,11 +9,9 @@ scalaVersion := "2.11.7"
 libraryDependencies ++= {
   val akkaVersion = "2.4.1"
   val akkaStreamAndHttpVersion = "2.0-M2"
-  val slickVersion = "3.1.0"
+  val slickVersion = "3.1.1"
   Seq(
     "com.typesafe.akka" %% "akka-actor" % akkaVersion,
-    "com.typesafe.akka" %% "akka-slf4j" % akkaVersion,
-    "ch.qos.logback" % "logback-classic" % "1.1.3",
     "com.typesafe.akka" %% "akka-stream-experimental" % akkaStreamAndHttpVersion,
     "io.reactivex" %% "rxscala" % "0.25.0",
     "io.reactivex" % "rxjava-reactive-streams" % "1.0.1",

@@ -8,7 +8,7 @@ scalaVersion := "2.11.7"
 
 libraryDependencies ++= {
   val akkaVersion = "2.4.1"
-  val akkaStreamAndHttpVersion = "2.0-M2"
+  val akkaStreamAndHttpVersion = "2.0"
   val slickVersion = "3.1.1"
   Seq(
     "com.typesafe.akka" %% "akka-actor" % akkaVersion,

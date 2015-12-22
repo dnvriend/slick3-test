@@ -30,7 +30,7 @@ class BatchInsertTest extends TestSpec {
     val numberOfRecords = 45005
 
     When(s"$numberOfRecords coffee object are created and batch inserted 100 a time")
-    val batch = Source(() ⇒ Iterator from 1)
+    val batch = Source.fromIterator(() ⇒ Iterator from 1)
       .take(numberOfRecords)
       .map(i ⇒ Coffee(s"Coffee-$i", 101, i.toDouble, i, i))
       .grouped(100)

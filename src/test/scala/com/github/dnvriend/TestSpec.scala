@@ -21,7 +21,7 @@ import akka.event.{ Logging, LoggingAdapter }
 import akka.stream.{ ActorMaterializer, Materializer }
 import org.scalatest._
 import org.scalatest.concurrent.ScalaFutures
-import slick.driver.PostgresDriver.api._
+import slick.jdbc.JdbcBackend
 import spray.json.DefaultJsonProtocol
 
 import scala.concurrent.duration._
@@ -34,7 +34,7 @@ trait TestSpec extends FlatSpec with Matchers with ScalaFutures with OptionValue
   implicit val mat: Materializer = ActorMaterializer()
   implicit val log: LoggingAdapter = Logging(system, this.getClass)
   implicit val pc: PatienceConfig = PatienceConfig(timeout = 50.seconds)
-  implicit val db: Database = DbExtension(system).db
+  implicit val db: JdbcBackend#Database = DbExtension(system).db
 
   implicit class FutureToTry[T](f: Future[T]) {
     def toTry: Try[T] = Try(f.futureValue)

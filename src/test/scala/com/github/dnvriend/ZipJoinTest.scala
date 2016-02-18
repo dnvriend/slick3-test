@@ -16,7 +16,7 @@
 
 package com.github.dnvriend
 
-import slick.driver.PostgresDriver.api._
+import slick.driver.H2Driver.api._
 
 class ZipJoinTest extends TestSpec {
 
@@ -35,8 +35,8 @@ class ZipJoinTest extends TestSpec {
     } yield (c.name, s.name)
 
     db.run(zipJoinQuery.result).futureValue shouldBe List(
-      ("Colombian", "Acme, Inc."),
-      ("French_Roast", "Superior Coffee"),
+      ("Colombian", "Superior Coffee"),
+      ("Colombian_Decaf", "Acme, Inc."),
       ("Espresso", "The High Ground")
     )
   }
@@ -47,8 +47,8 @@ class ZipJoinTest extends TestSpec {
     } yield res
 
     db.run(zipWithJoin.result).futureValue shouldBe List(
-      ("Colombian", "Acme, Inc."),
-      ("French_Roast", "Superior Coffee"),
+      ("Colombian", "Superior Coffee"),
+      ("Colombian_Decaf", "Acme, Inc."),
       ("Espresso", "The High Ground")
     )
   }
@@ -67,9 +67,9 @@ class ZipJoinTest extends TestSpec {
 
     db.run(zipWithIndexJoin.result).futureValue shouldBe List(
       ("Colombian", 0),
-      ("French_Roast", 1),
+      ("Colombian_Decaf", 1),
       ("Espresso", 2),
-      ("Colombian_Decaf", 3),
+      ("French_Roast", 3),
       ("French_Roast_Decaf", 4)
     )
   }

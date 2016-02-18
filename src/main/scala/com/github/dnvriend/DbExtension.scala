@@ -26,5 +26,5 @@ object DbExtension extends ExtensionId[DbExtensionImpl] with ExtensionIdProvider
 }
 
 class DbExtensionImpl()(implicit val system: ExtendedActorSystem) extends JdbcBackend with Extension {
-  implicit val db: Database = Database.forConfig("mydb")
+  implicit val db: Database = Database.forConfig("h2")
 }

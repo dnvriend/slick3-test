@@ -16,8 +16,8 @@
 
 package com.github.dnvriend
 
-import slick.driver.PostgresDriver
-import slick.driver.PostgresDriver.api._
+import slick.dbio.DBIO
+import slick.driver.H2Driver.api._
 
 import scala.concurrent.{ ExecutionContext, Future }
 
@@ -34,7 +34,7 @@ object UsersRepository {
   val users: TableQuery[UsersRepository.Users] = TableQuery[Users]
 
   def dropCreateSchema(implicit db: Database, ec: ExecutionContext): Future[Unit] = {
-    val schema: PostgresDriver.SchemaDescription = users.schema
+    val schema = users.schema
     db.run(schema.create)
       .recoverWith {
         case t: Throwable ⇒

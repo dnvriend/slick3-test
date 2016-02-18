@@ -23,12 +23,13 @@ import org.scalatest._
 import org.scalatest.concurrent.ScalaFutures
 import slick.jdbc.JdbcBackend
 import spray.json.DefaultJsonProtocol
+import slick.driver.H2Driver.api._
 
 import scala.concurrent.duration._
 import scala.concurrent.{ ExecutionContext, Future }
 import scala.util.Try
 
-trait TestSpec extends FlatSpec with Matchers with ScalaFutures with OptionValues with BeforeAndAfterEach with BeforeAndAfterAll with DefaultJsonProtocol with GivenWhenThen {
+trait TestSpec extends FlatSpec with Matchers with ScalaFutures with OptionValues with BeforeAndAfterEach with BeforeAndAfterAll with DefaultJsonProtocol with GivenWhenThen /* with ParallelTestExecution */ {
   implicit val system: ActorSystem = ActorSystem()
   implicit val ec: ExecutionContext = system.dispatcher
   implicit val mat: Materializer = ActorMaterializer()

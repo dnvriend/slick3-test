@@ -16,11 +16,10 @@
 
 package com.github.dnvriend
 
-import slick.driver.PostgresDriver.api._
+import com.github.dnvriend.PostgresCoffeeRepository._
+import com.github.dnvriend.PostgresCoffeeRepository.profile.api._
 
 class ZipJoinTest extends TestSpec {
-
-  import CoffeeRepository._
 
   /**
    * In addition to the usual applicative join operators supported by relational databases
@@ -31,7 +30,7 @@ class ZipJoinTest extends TestSpec {
 
   "ZipJoins" should "zipJoin" in {
     val zipJoinQuery = for {
-      (c, s) ← coffees zip suppliers
+      (c, s) ← CoffeeTable zip SupplierTable
     } yield (c.name, s.name)
 
     db.run(zipJoinQuery.result).futureValue shouldBe List(
@@ -43,7 +42,7 @@ class ZipJoinTest extends TestSpec {
 
   it should "zipWithJoin" in {
     val zipWithJoin = for {
-      res ← coffees.zipWith(suppliers, (c: Coffees, s: Suppliers) ⇒ (c.name, s.name))
+      res ← CoffeeTable.zipWith(SupplierTable, (c: CoffeeTable, s: SupplierTable) ⇒ (c.name, s.name))
     } yield res
 
     db.run(zipWithJoin.result).futureValue shouldBe List(
@@ -62,7 +61,7 @@ class ZipJoinTest extends TestSpec {
 
   it should "zipWithIndex" in {
     val zipWithIndexJoin = for {
-      (c, idx) ← coffees.zipWithIndex
+      (c, idx) ← CoffeeTable.zipWithIndex
     } yield (c.name, idx)
 
     db.run(zipWithIndexJoin.result).futureValue shouldBe List(

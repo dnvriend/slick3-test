@@ -16,11 +16,10 @@
 
 package com.github.dnvriend
 
-import slick.driver.PostgresDriver.api._
+import com.github.dnvriend.PostgresCoffeeRepository._
+import com.github.dnvriend.PostgresCoffeeRepository.profile.api._
 
 class GroupingTest extends TestSpec {
-
-  import CoffeeRepository._
 
   /**
    * Grouping is done with the groupBy method. It has the same semantics as for Scala collections.
@@ -33,7 +32,7 @@ class GroupingTest extends TestSpec {
 
   "GroupingTest" should "group results" in {
     val q = (for {
-      c ← coffees
+      c ← CoffeeTable
       s ← c.supplier
     } yield (c, s)).groupBy(_._1.supID)
 

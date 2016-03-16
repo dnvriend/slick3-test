@@ -16,11 +16,10 @@
 
 package com.github.dnvriend
 
-import slick.driver.PostgresDriver.api._
+import com.github.dnvriend.PostgresCoffeeRepository._
+import com.github.dnvriend.PostgresCoffeeRepository.profile.api._
 
 class ApplicativeJoinTest extends TestSpec {
-
-  import CoffeeRepository._
 
   /**
    * Joins are used to combine two different tables or queries into a single query.
@@ -36,7 +35,7 @@ class ApplicativeJoinTest extends TestSpec {
 
   "Applicative Joins" should "crossjoin" in {
     val crossJoin = for {
-      (c, s) ← coffees join suppliers
+      (c, s) ← CoffeeTable join SupplierTable
     } yield (c.name, s.name)
 
     db.run(crossJoin.result).futureValue shouldBe List(
@@ -60,7 +59,7 @@ class ApplicativeJoinTest extends TestSpec {
 
   it should "innerJoin" in {
     val innerJoin = for {
-      (c, s) ← coffees join suppliers on (_.supID === _.id)
+      (c, s) ← CoffeeTable join SupplierTable on (_.supID === _.id)
     } yield (c.name, s.name)
 
     db.run(innerJoin.result).futureValue shouldBe List(
@@ -81,7 +80,7 @@ class ApplicativeJoinTest extends TestSpec {
 
   it should "leftOuterJoin" in {
     val leftOuterJoin = for {
-      (c, s) ← coffees joinLeft suppliers on (_.supID === _.id)
+      (c, s) ← CoffeeTable joinLeft SupplierTable on (_.supID === _.id)
     } yield (c.name, s.map(_.name))
 
     db.run(leftOuterJoin.result).futureValue shouldBe List(
@@ -95,7 +94,7 @@ class ApplicativeJoinTest extends TestSpec {
 
   it should "rightOuterJoin" in {
     val rightOuterJoin = for {
-      (c, s) ← coffees joinRight suppliers on (_.supID === _.id)
+      (c, s) ← CoffeeTable joinRight SupplierTable on (_.supID === _.id)
     } yield (c.map(_.name), s.name)
 
     db.run(rightOuterJoin.result).futureValue shouldBe List(
@@ -109,7 +108,7 @@ class ApplicativeJoinTest extends TestSpec {
 
   it should "fullOuterJoin" in {
     val fullOuterJoin = for {
-      (c, s) ← coffees joinFull suppliers on (_.supID === _.id)
+      (c, s) ← CoffeeTable joinFull SupplierTable on (_.supID === _.id)
     } yield (c.map(_.name), s.map(_.name))
 
     db.run(fullOuterJoin.result).futureValue shouldBe List(

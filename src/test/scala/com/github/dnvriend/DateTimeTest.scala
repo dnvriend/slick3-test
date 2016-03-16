@@ -16,13 +16,13 @@
 
 package com.github.dnvriend
 
-import slick.driver.PostgresDriver.api._
+import com.github.dnvriend.PostgresPersonRepository._
+import com.github.dnvriend.PostgresPersonRepository.profile.api._
 
 class DateTimeTest extends TestSpec {
-  import PersonRepository._
 
   "Persons" should "be ordered on date of birth asc" in {
-    db.run(persons.sortBy(_.dateOfBirth).result)
+    db.run(PersonTable.sortBy(_.dateOfBirth).result)
       .futureValue
       .map(p ⇒ (p.name, p.dateOfBirth.toString)) shouldBe
       List(
@@ -38,7 +38,7 @@ class DateTimeTest extends TestSpec {
   }
 
   it should "be ordered on date of birth desc" in {
-    db.run(persons.sortBy(_.dateOfBirth.desc).result)
+    db.run(PersonTable.sortBy(_.dateOfBirth.desc).result)
       .futureValue
       .map(p ⇒ (p.name, p.dateOfBirth.toString)) shouldBe
       List(
@@ -54,12 +54,12 @@ class DateTimeTest extends TestSpec {
   }
 
   it should "select persons born > 1950-01-01" in {
-    db.run(persons.filter(_.dateOfBirth > "1950-01-01".date).sortBy(_.dateOfBirth).result)
+    db.run(PersonTable.filter(_.dateOfBirth > "1950-01-01".date).sortBy(_.dateOfBirth).result)
       .futureValue.map(_.name) shouldBe List("Jackie Chan", "Bruce Willis", "Kate Mulgrew")
   }
 
   it should "select persons born in 1940" in {
-    db.run(persons.filter(p ⇒ p.dateOfBirth > "1940-01-01".date && p.dateOfBirth < "1940-12-31".date).sortBy(_.dateOfBirth).result)
+    db.run(PersonTable.filter(p ⇒ p.dateOfBirth > "1940-01-01".date && p.dateOfBirth < "1940-12-31".date).sortBy(_.dateOfBirth).result)
       .futureValue.map(_.name) shouldBe List("Patrick Stewart", "Bruce Lee")
   }
 }

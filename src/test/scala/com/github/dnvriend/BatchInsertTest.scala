@@ -17,29 +17,30 @@
 package com.github.dnvriend
 
 import akka.stream.scaladsl.Source
-import slick.driver.PostgresDriver.api._
+import com.github.dnvriend.CoffeeRepository.CoffeeTableRow
+import com.github.dnvriend.PostgresCoffeeRepository._
+import com.github.dnvriend.PostgresCoffeeRepository.profile.api._
 
 class BatchInsertTest extends TestSpec {
-  import CoffeeRepository._
 
   "Inserting Coffee using batch insert" should "insert multiple rows" in {
     Given("An empty coffees table")
-    db.run(coffees.delete).futureValue
-    db.run(coffees.length.result).futureValue shouldBe 0
+    db.run(CoffeeTable.delete).futureValue
+    db.run(CoffeeTable.length.result).futureValue shouldBe 0
 
     val numberOfRecords = 45005
 
     When(s"$numberOfRecords coffee object are created and batch inserted 100 a time")
     val batch = Source.fromIterator(() ⇒ Iterator from 1)
       .take(numberOfRecords)
-      .map(i ⇒ Coffee(s"Coffee-$i", 101, i.toDouble, i, i))
+      .map(i ⇒ CoffeeTableRow(s"Coffee-$i", 101, i.toDouble, i, i))
       .grouped(100)
-      .mapAsync(1)(seqOfCoffees ⇒ db.run(coffees ++= seqOfCoffees))
+      .mapAsync(1)(seqOfCoffees ⇒ db.run(CoffeeTable ++= seqOfCoffees))
       .runFold(0L) { (c, result) ⇒ c + result.getOrElse(0) }
       .futureValue shouldBe numberOfRecords
 
     Then(s"$numberOfRecords coffee entries should be persisted")
-    db.run(coffees.length.result).futureValue shouldBe numberOfRecords
+    db.run(CoffeeTable.length.result).futureValue shouldBe numberOfRecords
   }
 }
 

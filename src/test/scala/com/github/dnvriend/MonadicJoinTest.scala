@@ -16,11 +16,10 @@
 
 package com.github.dnvriend
 
-import slick.driver.PostgresDriver.api._
+import com.github.dnvriend.PostgresCoffeeRepository._
+import com.github.dnvriend.PostgresCoffeeRepository.profile.api._
 
 class MonadicJoinTest extends TestSpec {
-
-  import CoffeeRepository._
 
   /**
    * Monadic joins are created with flatMap. They are theoretically more powerful
@@ -40,8 +39,8 @@ class MonadicJoinTest extends TestSpec {
 
   "MonadicJoin" should "crossJoin" in {
     val monadicCrossJoin = for {
-      c ← coffees
-      s ← suppliers
+      c ← CoffeeTable
+      s ← SupplierTable
     } yield (c.name, s.name)
 
     db.run(monadicCrossJoin.result).futureValue shouldBe List(
@@ -66,8 +65,8 @@ class MonadicJoinTest extends TestSpec {
   it should "innerJoin" in {
     // If you add a filter expression, it becomes an inner join:
     val monadicInnerJoin = for {
-      c ← coffees
-      s ← suppliers if c.supID === s.id
+      c ← CoffeeTable
+      s ← SupplierTable if c.supID === s.id
     } yield (c.name, s.name)
 
     db.run(monadicInnerJoin.result).futureValue shouldBe List(

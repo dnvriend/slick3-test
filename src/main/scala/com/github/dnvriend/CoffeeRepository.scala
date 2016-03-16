@@ -16,48 +16,53 @@
 
 package com.github.dnvriend
 
+import com.github.dnvriend.CoffeeRepository.{ CoffeeTableRow, SupplierTableRow }
 import slick.backend.DatabasePublisher
-import slick.driver.PostgresDriver
-import slick.driver.PostgresDriver.api._
+import slick.driver.JdbcProfile
 import slick.jdbc.GetResult
 
 import scala.concurrent.{ ExecutionContext, Future }
 
 object CoffeeRepository {
+  final case class SupplierTableRow(id: Int, name: String, street: String, city: String, state: String, zip: String)
+  final case class CoffeeTableRow(name: String, supID: Int, price: Double, sales: Int, total: Int)
+}
 
-  case class Supplier(id: Int, name: String, street: String, city: String, state: String, zip: String)
+trait CoffeeRepository {
+  val profile: slick.driver.JdbcProfile
+  import profile.api._
 
-  class Suppliers(tag: Tag) extends Table[Supplier](tag, "SUPPLIERS") {
+  class SupplierTable(tag: Tag) extends Table[SupplierTableRow](tag, "SUPPLIERS") {
+    // Every table needs a * projection with the same type as the table's type parameter
+    def * = (id, name, street, city, state, zip) <> (SupplierTableRow.tupled, SupplierTableRow.unapply)
     def id = column[Int]("SUP_ID", O.PrimaryKey) // This is the primary key column
     def name = column[String]("SUP_NAME")
     def street = column[String]("STREET")
     def city = column[String]("CITY")
     def state = column[String]("STATE")
     def zip = column[String]("ZIP")
-    // Every table needs a * projection with the same type as the table's type parameter
-    def * = (id, name, street, city, state, zip) <> (Supplier.tupled, Supplier.unapply)
   }
 
-  case class Coffee(name: String, supID: Int, price: Double, sales: Int, total: Int)
-  implicit val resultToCoffeeMapper: GetResult[CoffeeRepository.Coffee] = GetResult(r ⇒ Coffee(r.<<, r.<<, r.<<, r.<<, r.<<))
+  lazy val SupplierTable = new TableQuery(tag ⇒ new SupplierTable(tag))
+
+  implicit val resultToCoffeeMapper: GetResult[CoffeeRepository.CoffeeTableRow] = GetResult(r ⇒ CoffeeTableRow(r.<<, r.<<, r.<<, r.<<, r.<<))
 
   // Definition of the COFFEES table
-  class Coffees(tag: Tag) extends Table[Coffee](tag, "COFFEES") {
+  class CoffeeTable(tag: Tag) extends Table[CoffeeTableRow](tag, "COFFEES") {
+    // A reified foreign key relation that can be navigated to create a join
+    def * = (name, supID, price, sales, total) <> (CoffeeTableRow.tupled, CoffeeTableRow.unapply)
     def name = column[String]("COF_NAME", O.PrimaryKey)
     def supID = column[Int]("SUP_ID")
     def price = column[Double]("PRICE")
     def sales = column[Int]("SALES")
     def total = column[Int]("TOTAL")
-    def * = (name, supID, price, sales, total) <> (Coffee.tupled, Coffee.unapply)
-    // A reified foreign key relation that can be navigated to create a join
-    def supplier = foreignKey("SUP_FK", supID, suppliers)(_.id)
+    def supplier = foreignKey("SUP_FK", supID, SupplierTable)(_.id)
   }
 
-  val suppliers: TableQuery[CoffeeRepository.Suppliers] = TableQuery[Suppliers]
-  val coffees: TableQuery[CoffeeRepository.Coffees] = TableQuery[Coffees]
+  lazy val CoffeeTable = new TableQuery(tag ⇒ new CoffeeTable(tag))
 
   def dropCreateSchema(implicit db: Database, ec: ExecutionContext): Future[Unit] = {
-    val schema: PostgresDriver.DDL = suppliers.schema ++ coffees.schema
+    val schema: profile.DDL = SupplierTable.schema ++ CoffeeTable.schema
     db.run(schema.create)
       .recoverWith {
         case t: Throwable ⇒
@@ -69,41 +74,47 @@ object CoffeeRepository {
    * Initializes the database; creates the schema and inserts supplies and coffees
    */
   def initialize(implicit db: Database, ec: ExecutionContext): Future[Unit] = {
-    val setup: DBIOAction[Unit, NoStream, Effect.Write] = DBIO.seq(
+    val setup: DBIOAction[Unit, NoStream, Effect.Write with Effect.Transactional] = DBIO.seq(
       // Insert some suppliers
-      suppliers += Supplier(101, "Acme, Inc.", "99 Market Street", "Groundsville", "CA", "95199"),
-      suppliers += Supplier(49, "Superior Coffee", "1 Party Place", "Mendocino", "CA", "95460"),
-      suppliers += Supplier(150, "The High Ground", "100 Coffee Lane", "Meadows", "CA", "93966"),
+      SupplierTable ++= Seq(
+        SupplierTableRow(101, "Acme, Inc.", "99 Market Street", "Groundsville", "CA", "95199"),
+        SupplierTableRow(49, "Superior Coffee", "1 Party Place", "Mendocino", "CA", "95460"),
+        SupplierTableRow(150, "The High Ground", "100 Coffee Lane", "Meadows", "CA", "93966")
+      ),
       // Equivalent SQL code:
       // insert into SUPPLIERS(SUP_ID, SUP_NAME, STREET, CITY, STATE, ZIP) values (?,?,?,?,?,?)
 
       // Insert some coffees (using JDBC's batch insert feature, if supported by the DB)
-      coffees ++= Seq(
-        Coffee("Colombian", 101, 7.99, 0, 0),
-        Coffee("French_Roast", 49, 8.99, 0, 0),
-        Coffee("Espresso", 150, 11.99, 0, 0),
-        Coffee("Colombian_Decaf", 101, 10.99, 0, 0),
-        Coffee("French_Roast_Decaf", 49, 9.99, 0, 0)
+      CoffeeTable ++= Seq(
+        CoffeeTableRow("Colombian", 101, 7.99, 0, 0),
+        CoffeeTableRow("French_Roast", 49, 8.99, 0, 0),
+        CoffeeTableRow("Espresso", 150, 11.99, 0, 0),
+        CoffeeTableRow("Colombian_Decaf", 101, 10.99, 0, 0),
+        CoffeeTableRow("French_Roast_Decaf", 49, 9.99, 0, 0)
       )
-    )
+    ).transactionally
     dropCreateSchema.flatMap(_ ⇒ db.run(setup))
   }
 
   def deleteCoffeeByName(name: String)(implicit db: Database): Future[Int] =
-    db.run(coffees.filter(_.name === name).delete)
+    db.run(CoffeeTable.filter(_.name === name).delete)
 
-  def deleteCoffee(coffee: Coffee)(implicit db: Database): Future[Int] =
-    db.run(coffees.filter(_.name === coffee.name).delete)
+  def deleteCoffee(coffee: CoffeeTableRow)(implicit db: Database): Future[Int] =
+    db.run(CoffeeTable.filter(_.name === coffee.name).delete)
 
-  def clearCoffeesTable(implicit db: Database): Future[Int] = db.run(coffees.delete)
+  def clearCoffeesTable(implicit db: Database): Future[Int] = db.run(CoffeeTable.delete)
 
-  def coffeeStream(implicit db: Database): DatabasePublisher[Coffee] =
-    db.stream[Coffee](coffees.result)
+  def coffeeStream(implicit db: Database): DatabasePublisher[CoffeeTableRow] =
+    db.stream(CoffeeTable.result)
 
-  def coffee(name: String)(implicit db: Database): Future[Seq[Coffee]] =
-    db.run(coffees.filter(_.name === name).result)
+  def coffee(name: String)(implicit db: Database): Future[Seq[CoffeeTableRow]] =
+    db.run(CoffeeTable.filter(_.name === name).result)
 
   def listCoffees(limit: Long, offset: Long = Long.MaxValue)(implicit db: Database) =
     // select * from coffees limit $limit offset $offset
-    db.run(coffees.drop(offset).take(limit).result)
+    db.run(CoffeeTable.drop(offset).take(limit).result)
+}
+
+object PostgresCoffeeRepository extends CoffeeRepository {
+  override val profile: JdbcProfile = slick.driver.PostgresDriver
 }

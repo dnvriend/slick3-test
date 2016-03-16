@@ -41,9 +41,9 @@ trait TestSpec extends FlatSpec with Matchers with ScalaFutures with OptionValue
   }
 
   override protected def beforeEach(): Unit = {
-    CoffeeRepository.initialize
-      .flatMap(_ ⇒ PersonRepository.initialize)
-      .flatMap(_ ⇒ UsersRepository.initialize)
+    PostgresCoffeeRepository.initialize
+      .flatMap(_ ⇒ PostgresPersonRepository.initialize)
+      .flatMap(_ ⇒ PostgresUserRepository.initialize)
       .toTry recover { case t: Throwable ⇒ log.error(t, "Could not initialize the database") } should be a 'success
   }
 

@@ -16,25 +16,36 @@
 
 package com.github.dnvriend
 
-import slick.driver.PostgresDriver
-import slick.driver.PostgresDriver.api._
+import com.github.dnvriend.UserRepository.UserTableRow
+import slick.driver.JdbcProfile
 
 import scala.concurrent.{ ExecutionContext, Future }
 
-object UsersRepository {
+object UserRepository {
 
-  case class User(id: Option[Int], first: String, last: String)
+  final case class UserTableRow(id: Option[Int], first: String, last: String)
 
-  class Users(tag: Tag) extends Table[User](tag, "users") {
+}
+
+trait UserRepository {
+  val profile: slick.driver.JdbcProfile
+
+  import profile.api._
+
+  class UserTable(tag: Tag) extends Table[UserTableRow](tag, "users") {
+    def * = (id.?, first, last) <> (UserTableRow.tupled, UserTableRow.unapply)
+
     def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
+
     def first = column[String]("first")
+
     def last = column[String]("last")
-    def * = (id.?, first, last) <> (User.tupled, User.unapply)
   }
-  val users: TableQuery[UsersRepository.Users] = TableQuery[Users]
+
+  lazy val UserTable = new TableQuery(tag ⇒ new UserTable(tag))
 
   def dropCreateSchema(implicit db: Database, ec: ExecutionContext): Future[Unit] = {
-    val schema: PostgresDriver.SchemaDescription = users.schema
+    val schema: profile.SchemaDescription = UserTable.schema
     db.run(schema.create)
       .recoverWith {
         case t: Throwable ⇒
@@ -46,12 +57,20 @@ object UsersRepository {
    * Initializes the database; creates the schema and inserts users
    */
   def initialize(implicit db: Database, ec: ExecutionContext): Future[Unit] = {
-    val setup: DBIOAction[Unit, NoStream, Effect.Write] = DBIO.seq(
-      users += User(None, "Bill", "Gates"),
-      users += User(None, "Steve", "Balmer"),
-      users += User(None, "Steve", "Jobs"),
-      users += User(None, "Steve", "Wozniak")
-    )
+    val setup: DBIOAction[Unit, NoStream, Effect.Write with Effect.Transactional] = DBIO.seq(
+      // insert some users
+      UserTable ++= Seq(
+        UserTableRow(None, "Bill", "Gates"),
+        UserTableRow(None, "Steve", "Balmer"),
+        UserTableRow(None, "Steve", "Jobs"),
+        UserTableRow(None, "Steve", "Wozniak")
+      )
+    ).transactionally
     dropCreateSchema.flatMap(_ ⇒ db.run(setup))
   }
 }
+
+object PostgresUserRepository extends UserRepository {
+  override val profile: JdbcProfile = slick.driver.PostgresDriver
+}
+

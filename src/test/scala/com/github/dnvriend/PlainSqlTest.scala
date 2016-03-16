@@ -16,11 +16,11 @@
 
 package com.github.dnvriend
 
-import slick.driver.PostgresDriver.api._
+import CoffeeRepository._
+import com.github.dnvriend.PostgresCoffeeRepository._
+import com.github.dnvriend.PostgresCoffeeRepository.profile.api._
 
 class PlainSqlTest extends TestSpec {
-
-  import CoffeeRepository._
 
   /**
    * The database connection is opened in the usual way. All Plain SQL queries result in `DBIOActions`
@@ -41,13 +41,13 @@ class PlainSqlTest extends TestSpec {
 
   "Plain SQL on Coffee" should "select all coffee" in {
     // be sure to 'escape' the table and field names with double quotes
-    val actions: DBIO[Seq[Coffee]] = sql"""SELECT * FROM "COFFEES" ORDER BY "COF_NAME" ASC""".as[Coffee]
+    val actions: DBIO[Seq[CoffeeTableRow]] = sql"""SELECT * FROM "COFFEES" ORDER BY "COF_NAME" ASC""".as[CoffeeTableRow]
     db.run(actions).futureValue shouldBe List(
-      Coffee("Colombian", 101, 7.99, 0, 0),
-      Coffee("Colombian_Decaf", 101, 10.99, 0, 0),
-      Coffee("Espresso", 150, 11.99, 0, 0),
-      Coffee("French_Roast", 49, 8.99, 0, 0),
-      Coffee("French_Roast_Decaf", 49, 9.99, 0, 0)
+      CoffeeTableRow("Colombian", 101, 7.99, 0, 0),
+      CoffeeTableRow("Colombian_Decaf", 101, 10.99, 0, 0),
+      CoffeeTableRow("Espresso", 150, 11.99, 0, 0),
+      CoffeeTableRow("French_Roast", 49, 8.99, 0, 0),
+      CoffeeTableRow("French_Roast_Decaf", 49, 9.99, 0, 0)
     )
   }
 

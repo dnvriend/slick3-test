@@ -16,10 +16,17 @@
 
 package com.github.dnvriend
 
+import akka.actor.ActorSystem
 import akka.stream.scaladsl.Source
+import akka.stream.ActorMaterializer
+import akka.testkit.TestKit
+import akka.testkit.ImplicitSender
 import com.github.dnvriend.CoffeeRepository.CoffeeTableRow
+import scala.collection.JavaConversions._
 
-class CoffeeStreamTest extends TestSpec {
+class CoffeeStreamTest extends TestKit(ActorSystem("CoffeeStreamTest")) with TestSpec with ImplicitSender {
+
+  implicit val mat = ActorMaterializer()(system)
 
   "DatabasePublisher" should "stream coffee" in {
     Source.fromPublisher(PostgresCoffeeRepository.coffeeStream).runFold(Seq.empty[CoffeeTableRow]) {

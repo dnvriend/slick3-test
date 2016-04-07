@@ -16,12 +16,17 @@
 
 package com.github.dnvriend
 
+import akka.actor.ActorSystem
 import akka.stream.scaladsl.Source
+import akka.stream.ActorMaterializer
+import akka.testkit.TestKit
 import com.github.dnvriend.CoffeeRepository.CoffeeTableRow
 import com.github.dnvriend.PostgresCoffeeRepository._
 import com.github.dnvriend.PostgresCoffeeRepository.profile.api._
 
-class BatchInsertTest extends TestSpec {
+class BatchInsertTest extends TestKit(ActorSystem("BatchInsertTest")) with TestSpec {
+
+  implicit val mat = ActorMaterializer()(system)
 
   "Inserting Coffee using batch insert" should "insert multiple rows" in {
     Given("An empty coffees table")

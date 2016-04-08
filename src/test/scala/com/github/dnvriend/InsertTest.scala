@@ -55,7 +55,9 @@ class InsertTest extends TestSpec {
     val userIdAction = (UserTable returning UserTable.map(_.id)) += UserTableRow(None, "Stefan", "Zeiger")
     // the returning method where you specify the columns to be returned
     // (as a single value or tuple from += and a Seq of such values from ++=)
-    db.run(userIdAction).futureValue shouldBe an[java.lang.Integer]
+    val id = db.run(userIdAction).futureValue
+    id shouldBe an[java.lang.Integer]
+    db.run(UserTable.filter(_.id === id).result.headOption).futureValue shouldBe 'defined
   }
 
   it should "map the auto-generated primary key for a user into the case class" in {
@@ -70,9 +72,5 @@ class InsertTest extends TestSpec {
     db.run(userWithIdAction).futureValue should matchPattern {
       case UserTableRow(Some(id), "Stefan", "Zeiger") if id > 4 ⇒
     }
-  }
-
-  it should "add multiple records transactionally" in {
-    Seq()
   }
 }

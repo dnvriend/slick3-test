@@ -12,6 +12,8 @@ libraryDependencies ++= {
   Seq(
     "com.typesafe.akka" %% "akka-actor" % akkaVersion,
     "com.typesafe.akka" %% "akka-stream" % akkaVersion,
+    "com.typesafe.akka" %% "akka-slf4j" % akkaVersion,
+    "ch.qos.logback" % "logback-classic" % "1.1.2",
     "io.reactivex" %% "rxscala" % "0.26.0",
     "io.reactivex" % "rxjava-reactive-streams" % "1.0.1",
     "com.typesafe.slick" %% "slick" % slickVersion,

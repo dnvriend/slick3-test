@@ -48,6 +48,7 @@ trait TestSpec extends FlatSpec with Matchers with ScalaFutures with OptionValue
   }
 
   override protected def afterAll(): Unit = {
+    system.registerOnTermination(db.close())
     system.terminate()
     system.whenTerminated.futureValue
   }

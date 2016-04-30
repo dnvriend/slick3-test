@@ -3,7 +3,7 @@
 
     <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
         <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
-            <level>debug</level>
+            <level>info</level>
         </filter>
         <encoder>
             <pattern>%date{ISO8601} - %logger -> %-5level[%thread] %logger{0} - %msg%n</pattern>
@@ -11,7 +11,7 @@
     </appender>
 
     <!--<logger name="org.github.dnvriend" level="debug"/>-->
-    <logger name="slick.backend.DatabaseComponent.action" level="debug" />
+    <!--<logger name="slick.backend.DatabaseComponent.action" level="debug" />-->
 
     <root level="info">
         <appender-ref ref="console"/>

@@ -27,3 +27,5 @@ A full list of slick talks can be found [here](http://slick.typesafe.com/docs/#t
 - [Parleys - Scala Days San Fransisco 2015 - Stefan Zeiger - Reactive Slick for Database Programming](https://www.parleys.com/tutorial/reactive-slick-database-programming)
 - [Youtube - Typesafe Webinar July 2015 - Endre Varga - A Deeper Look at Reactive Streams with Akka Streams 1.0 and Slick 3.0](https://www.youtube.com/watch?v=U9mJANtSpc4)
 
+## Presentations
+- [Using PostgreSQL with Java](http://www.slideshare.net/nosys/using-postgre-sqljavapgcon2014)

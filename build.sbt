@@ -7,7 +7,7 @@ version := "1.0"
 scalaVersion := "2.11.8"
 
 libraryDependencies ++= {
-  val akkaVersion = "2.4.3"
+  val akkaVersion = "2.4.4"
   val slickVersion = "3.1.1"
   Seq(
     "com.typesafe.akka" %% "akka-actor" % akkaVersion,
@@ -17,8 +17,9 @@ libraryDependencies ++= {
     "io.reactivex" %% "rxscala" % "0.26.0",
     "io.reactivex" % "rxjava-reactive-streams" % "1.0.1",
     "com.typesafe.slick" %% "slick" % slickVersion,
-    "com.typesafe.slick" %% "slick-hikaricp" % slickVersion,
-    "org.postgresql" % "postgresql" % "9.4-1206-jdbc42",
+    "com.typesafe.slick" %% "slick-hikaricp" % slickVersion exclude("com.zaxxer", "HikariCP-java6"),
+    "com.zaxxer" % "HikariCP" % "2.4.6",
+    "org.postgresql" % "postgresql" % "9.4.1208.jre7",
     "com.typesafe.akka" %% "akka-http-spray-json-experimental" % akkaVersion,
     "com.typesafe.akka" %% "akka-stream-testkit" % akkaVersion % Test,
     "com.typesafe.akka" %% "akka-testkit" % akkaVersion % Test,

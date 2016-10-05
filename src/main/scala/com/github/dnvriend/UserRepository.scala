@@ -42,13 +42,13 @@ trait UserRepository {
     def last = column[String]("last")
   }
 
-  lazy val UserTable = new TableQuery(tag ⇒ new UserTable(tag))
+  lazy val UserTable = new TableQuery(tag => new UserTable(tag))
 
   def dropCreateSchema(implicit db: Database, ec: ExecutionContext): Future[Unit] = {
     val schema: profile.SchemaDescription = UserTable.schema
     db.run(schema.create)
       .recoverWith {
-        case t: Throwable ⇒
+        case t: Throwable =>
           db.run(DBIO.seq(schema.drop, schema.create))
       }
   }
@@ -66,7 +66,7 @@ trait UserRepository {
         UserTableRow(None, "Steve", "Wozniak")
       )
     ).transactionally
-    dropCreateSchema.flatMap(_ ⇒ db.run(setup))
+    dropCreateSchema.flatMap(_ => db.run(setup))
   }
 }
 

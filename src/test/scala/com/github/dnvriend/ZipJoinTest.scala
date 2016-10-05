@@ -30,7 +30,7 @@ class ZipJoinTest extends TestSpec {
 
   "ZipJoins" should "zipJoin" in {
     val zipJoinQuery = for {
-      (c, s) ← CoffeeTable zip SupplierTable
+      (c, s) <- CoffeeTable zip SupplierTable
     } yield (c.name, s.name)
 
     db.run(zipJoinQuery.result).futureValue shouldBe List(
@@ -42,7 +42,7 @@ class ZipJoinTest extends TestSpec {
 
   it should "zipWithJoin" in {
     val zipWithJoin = for {
-      res ← CoffeeTable.zipWith(SupplierTable, (c: CoffeeTable, s: SupplierTable) ⇒ (c.name, s.name))
+      res <- CoffeeTable.zipWith(SupplierTable, (c: CoffeeTable, s: SupplierTable) => (c.name, s.name))
     } yield res
 
     db.run(zipWithJoin.result).futureValue shouldBe List(
@@ -61,7 +61,7 @@ class ZipJoinTest extends TestSpec {
 
   it should "zipWithIndex" in {
     val zipWithIndexJoin = for {
-      (c, idx) ← CoffeeTable.zipWithIndex
+      (c, idx) <- CoffeeTable.zipWithIndex
     } yield (c.name, idx)
 
     db.run(zipWithIndexJoin.result).futureValue shouldBe List(

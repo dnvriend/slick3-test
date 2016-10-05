@@ -32,12 +32,12 @@ class GroupingTest extends TestSpec {
 
   "GroupingTest" should "group results" in {
     val q = (for {
-      c ← CoffeeTable
-      s ← c.supplier
+      c <- CoffeeTable
+      s <- c.supplier
     } yield (c, s)).groupBy(_._1.supID)
 
     val q2 = q.map {
-      case (supID, css) ⇒
+      case (supID, css) =>
         (supID, css.length, css.map(_._1.price).avg)
     }
 

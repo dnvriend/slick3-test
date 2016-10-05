@@ -7,23 +7,23 @@ version := "1.0"
 scalaVersion := "2.11.8"
 
 libraryDependencies ++= {
-  val akkaVersion = "2.4.4"
+  val akkaVersion = "2.4.11"
   val slickVersion = "3.1.1"
   Seq(
     "com.typesafe.akka" %% "akka-actor" % akkaVersion,
     "com.typesafe.akka" %% "akka-stream" % akkaVersion,
     "com.typesafe.akka" %% "akka-slf4j" % akkaVersion,
-    "ch.qos.logback" % "logback-classic" % "1.1.2",
-    "io.reactivex" %% "rxscala" % "0.26.0",
-    "io.reactivex" % "rxjava-reactive-streams" % "1.0.1",
+    "ch.qos.logback" % "logback-classic" % "1.1.7",
+    "io.reactivex" %% "rxscala" % "0.26.2",
+    "io.reactivex" % "rxjava-reactive-streams" % "1.1.1",
     "com.typesafe.slick" %% "slick" % slickVersion,
     "com.typesafe.slick" %% "slick-hikaricp" % slickVersion exclude("com.zaxxer", "HikariCP-java6"),
-    "com.zaxxer" % "HikariCP" % "2.4.6",
-    "org.postgresql" % "postgresql" % "9.4.1208.jre7",
+    "com.zaxxer" % "HikariCP" % "2.5.1",
+    "org.postgresql" % "postgresql" % "9.4.1211",
     "com.typesafe.akka" %% "akka-http-spray-json-experimental" % akkaVersion,
     "com.typesafe.akka" %% "akka-stream-testkit" % akkaVersion % Test,
     "com.typesafe.akka" %% "akka-testkit" % akkaVersion % Test,
-    "org.scalatest" %% "scalatest" % "2.2.4" % Test
+    "org.scalatest" %% "scalatest" % "2.2.6" % Test
   )
 }
 
@@ -42,7 +42,6 @@ ScalariformKeys.preferences := ScalariformKeys.preferences.value
   .setPreference(AlignSingleLineCaseStatements, true)
   .setPreference(AlignSingleLineCaseStatements.MaxArrowIndent, 100)
   .setPreference(DoubleIndentClassDeclaration, true)
-  .setPreference(RewriteArrowSymbols, true)
 
 // enable updating file headers //
 import de.heikoseeberger.sbtheader.license.Apache2_0

@@ -42,9 +42,9 @@ trait TestSpec extends FlatSpec with Matchers with ScalaFutures with OptionValue
 
   override protected def beforeEach(): Unit = {
     PostgresCoffeeRepository.initialize
-      .flatMap(_ ⇒ PostgresPersonRepository.initialize)
-      .flatMap(_ ⇒ PostgresUserRepository.initialize)
-      .toTry recover { case t: Throwable ⇒ log.error(t, "Could not initialize the database") } should be a 'success
+      .flatMap(_ => PostgresPersonRepository.initialize)
+      .flatMap(_ => PostgresUserRepository.initialize)
+      .toTry recover { case t: Throwable => log.error(t, "Could not initialize the database") } should be a 'success
   }
 
   override protected def afterAll(): Unit = {

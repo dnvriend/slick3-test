@@ -23,7 +23,7 @@ class CoffeeStreamTest extends TestSpec {
 
   "DatabasePublisher" should "stream coffee" in {
     Source.fromPublisher(PostgresCoffeeRepository.coffeeStream).runFold(Seq.empty[CoffeeTableRow]) {
-      case (seq, coffee) ⇒ seq :+ coffee
+      case (seq, coffee) => seq :+ coffee
     }.futureValue should not be 'empty
   }
 

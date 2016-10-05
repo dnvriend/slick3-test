@@ -39,8 +39,8 @@ class MonadicJoinTest extends TestSpec {
 
   "MonadicJoin" should "crossJoin" in {
     val monadicCrossJoin = for {
-      c ← CoffeeTable
-      s ← SupplierTable
+      c <- CoffeeTable
+      s <- SupplierTable
     } yield (c.name, s.name)
 
     db.run(monadicCrossJoin.result).futureValue shouldBe List(
@@ -65,8 +65,8 @@ class MonadicJoinTest extends TestSpec {
   it should "innerJoin" in {
     // If you add a filter expression, it becomes an inner join:
     val monadicInnerJoin = for {
-      c ← CoffeeTable
-      s ← SupplierTable if c.supID === s.id
+      c <- CoffeeTable
+      s <- SupplierTable if c.supID === s.id
     } yield (c.name, s.name)
 
     db.run(monadicInnerJoin.result).futureValue shouldBe List(

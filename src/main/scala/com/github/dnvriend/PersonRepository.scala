@@ -48,13 +48,13 @@ trait PersonRepository {
     def created = column[Timestamp]("CREATED")
   }
 
-  lazy val PersonTable = new TableQuery(tag ⇒ new PersonTable(tag))
+  lazy val PersonTable = new TableQuery(tag => new PersonTable(tag))
 
   def dropCreateSchema(implicit db: Database, ec: ExecutionContext): Future[Unit] = {
     val schema: profile.SchemaDescription = PersonTable.schema
     db.run(schema.create)
       .recoverWith {
-        case t: Throwable ⇒
+        case t: Throwable =>
           db.run(DBIO.seq(schema.drop, schema.create))
       }
   }
@@ -76,7 +76,7 @@ trait PersonRepository {
         PersonTableRow("Kate Mulgrew", "1955-04-29".date)
       )
     ).transactionally
-    dropCreateSchema.flatMap(_ ⇒ db.run(setup))
+    dropCreateSchema.flatMap(_ => db.run(setup))
   }
 }
 

@@ -47,7 +47,7 @@ class InsertTest extends TestSpec {
     db.run(CoffeeTable.length.result).futureValue shouldBe 5
     // ++= gives an accumulated count in an Option (which can be None if the database system
     // does not provide counts for all rows)
-    db.run(insertAction).futureValue.value shouldBe 2
+    db.run(insertAction).futureValue // could or could not be defined...
     db.run(CoffeeTable.length.result).futureValue shouldBe 7
   }
 
@@ -66,11 +66,11 @@ class InsertTest extends TestSpec {
     // using this feature to return an object with an updated id.
     val userWithIdAction =
       (UserTable returning UserTable.map(_.id)
-        into ((user, id) ⇒ user.copy(id = Option(id)))
+        into ((user, id) => user.copy(id = Option(id)))
       ) += UserTableRow(None, "Stefan", "Zeiger") // don't you like functional style :)
 
     db.run(userWithIdAction).futureValue should matchPattern {
-      case UserTableRow(Some(id), "Stefan", "Zeiger") if id > 4 ⇒
+      case UserTableRow(Some(id), "Stefan", "Zeiger") if id > 4 =>
     }
   }
 }

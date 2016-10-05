@@ -16,7 +16,6 @@
 
 package com.github.dnvriend
 
-import akka.stream.scaladsl.Source
 import com.github.dnvriend.CoffeeRepository.CoffeeTableRow
 import com.github.dnvriend.PostgresCoffeeRepository._
 import com.github.dnvriend.PostgresCoffeeRepository.profile.api._
@@ -31,15 +30,14 @@ class BatchInsertTest extends TestSpec {
     val numberOfRecords = 45005
 
     When(s"$numberOfRecords coffee object are created and batch inserted 100 a time")
-    val batch = Source.fromIterator(() ⇒ Iterator from 1)
+    akka.stream.scaladsl.Source.fromIterator(() => Iterator from 1)
       .take(numberOfRecords)
-      .map(i ⇒ CoffeeTableRow(s"Coffee-$i", 101, i.toDouble, i, i))
-      .grouped(100)
-      .mapAsync(1)(seqOfCoffees ⇒ db.run(CoffeeTable ++= seqOfCoffees))
-      .runFold(0L) { (c, result) ⇒ c + result.getOrElse(0) }
-      .futureValue shouldBe numberOfRecords
+      .map(i => CoffeeTableRow(s"Coffee-$i", 101, i.toDouble, i, i))
+      .grouped(1000)
+      .mapAsyncUnordered(8)(seqOfCoffees => db.run(CoffeeTable ++= seqOfCoffees))
+      .runWith(akka.stream.scaladsl.Sink.ignore)
+      .futureValue
 
-    Then(s"$numberOfRecords coffee entries should be persisted")
     db.run(CoffeeTable.length.result).futureValue shouldBe numberOfRecords
   }
 }

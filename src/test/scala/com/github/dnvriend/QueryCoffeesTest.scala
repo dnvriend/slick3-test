@@ -51,7 +51,7 @@ class QueryCoffeesTest extends TestSpec {
   it should "add a record and query the new record" in {
     // INSERT a coffee AND SELECT it
     db.run(CoffeeTable += CoffeeTableRow("Foo", 49, 12.99, 0, 0))
-      .flatMap(_ ⇒ db.run(CoffeeTable.filter(_.name === "Foo").result))
+      .flatMap(_ => db.run(CoffeeTable.filter(_.name === "Foo").result))
       .futureValue.head shouldBe CoffeeTableRow("Foo", 49, 12.99, 0, 0)
   }
 
@@ -99,7 +99,7 @@ class QueryCoffeesTest extends TestSpec {
 
   it should "sort on two fields" in {
     // SELECT * FROM COFFEES ORDER BY NAME ASC, PRICE DESC
-    db.run(CoffeeTable.sortBy(c ⇒ (c.name.desc, c.price.desc)).result).futureValue shouldBe
+    db.run(CoffeeTable.sortBy(c => (c.name.desc, c.price.desc)).result).futureValue shouldBe
       List(
         CoffeeTableRow("French_Roast_Decaf", 49, 9.99, 0, 0),
         CoffeeTableRow("French_Roast", 49, 8.99, 0, 0),
@@ -157,12 +157,12 @@ class QueryCoffeesTest extends TestSpec {
     val criteriaEspresso: Option[String] = Option("Espresso")
     val criteriaRoast: Option[String] = None
 
-    val q = CoffeeTable.filter { coffee ⇒
+    val q = CoffeeTable.filter { coffee =>
       List(
         criteriaColombian.map(coffee.name === _),
         criteriaEspresso.map(coffee.name === _),
         criteriaRoast.map(coffee.name === _) // not a condition as `criteriaRoast` evaluates to `None`
-      ).collect({ case Some(criteria) ⇒ criteria }).reduceLeftOption(_ || _).getOrElse(slick.lifted.LiteralColumn[Boolean](true))
+      ).collect({ case Some(criteria) => criteria }).reduceLeftOption(_ || _).getOrElse(slick.lifted.LiteralColumn[Boolean](true))
     }
 
     //    q.result.statements.foreach(println)

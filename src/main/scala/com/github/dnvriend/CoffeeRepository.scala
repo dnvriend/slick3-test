@@ -43,9 +43,9 @@ trait CoffeeRepository {
     def zip = column[String]("ZIP")
   }
 
-  lazy val SupplierTable = new TableQuery(tag ⇒ new SupplierTable(tag))
+  lazy val SupplierTable = new TableQuery(tag => new SupplierTable(tag))
 
-  implicit val resultToCoffeeMapper: GetResult[CoffeeRepository.CoffeeTableRow] = GetResult(r ⇒ CoffeeTableRow(r.<<, r.<<, r.<<, r.<<, r.<<))
+  implicit val resultToCoffeeMapper: GetResult[CoffeeRepository.CoffeeTableRow] = GetResult(r => CoffeeTableRow(r.<<, r.<<, r.<<, r.<<, r.<<))
 
   // Definition of the COFFEES table
   class CoffeeTable(tag: Tag) extends Table[CoffeeTableRow](tag, "COFFEES") {
@@ -59,13 +59,13 @@ trait CoffeeRepository {
     def supplier = foreignKey("SUP_FK", supID, SupplierTable)(_.id)
   }
 
-  lazy val CoffeeTable = new TableQuery(tag ⇒ new CoffeeTable(tag))
+  lazy val CoffeeTable = new TableQuery(tag => new CoffeeTable(tag))
 
   def dropCreateSchema(implicit db: Database, ec: ExecutionContext): Future[Unit] = {
     val schema: profile.DDL = SupplierTable.schema ++ CoffeeTable.schema
     db.run(schema.create)
       .recoverWith {
-        case t: Throwable ⇒
+        case t: Throwable =>
           db.run(DBIO.seq(schema.drop, schema.create))
       }
   }
@@ -93,7 +93,7 @@ trait CoffeeRepository {
         CoffeeTableRow("French_Roast_Decaf", 49, 9.99, 0, 0)
       )
     ).transactionally
-    dropCreateSchema.flatMap(_ ⇒ db.run(setup))
+    dropCreateSchema.flatMap(_ => db.run(setup))
   }
 
   def deleteCoffeeByName(name: String)(implicit db: Database): Future[Int] =

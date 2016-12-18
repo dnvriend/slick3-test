@@ -14,13 +14,15 @@
  * limitations under the License.
  */
 
-package com.github.dnvriend
+package com.github.dnvriend.slicktest
 
-import com.github.dnvriend.PostgresCoffeeRepository._
-import com.github.dnvriend.PostgresCoffeeRepository.profile.api._
+import com.github.dnvriend.TestSpec
+import org.scalatest.Ignore
 
+@Ignore
 class ApplicativeJoinTest extends TestSpec {
-
+  import profile.api._
+  import coffeeRepository._
   /**
    * Joins are used to combine two different tables or queries into a single query.
    * There are two different ways of writing joins: Applicative and monadic.

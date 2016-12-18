@@ -16,21 +16,33 @@
 
 package com.github.dnvriend
 
+import javax.inject.{ Inject, Singleton }
+
 import com.github.dnvriend.CoffeeRepository.{ CoffeeTableRow, SupplierTableRow }
+import play.api.db.slick.{ DatabaseConfigProvider, HasDatabaseConfigProvider }
 import slick.backend.DatabasePublisher
 import slick.driver.JdbcProfile
 import slick.jdbc.GetResult
 
-import scala.concurrent.{ ExecutionContext, Future }
+import scala.concurrent.Future
 
 object CoffeeRepository {
   final case class SupplierTableRow(id: Int, name: String, street: String, city: String, state: String, zip: String)
   final case class CoffeeTableRow(name: String, supID: Int, price: Double, sales: Int, total: Int)
 }
 
-trait CoffeeRepository {
-  val profile: slick.driver.JdbcProfile
-  import profile.api._
+//
+// After having properly configured a Slick database,
+// you can obtain a DatabaseConfig (which is a Slick type bundling a database and driver)
+// in two different ways. Either by using dependency injection,
+// or through a global lookup via the DatabaseConfigProvider singleton.
+
+@Singleton
+class CoffeeRepository @Inject() (protected val dbConfigProvider: DatabaseConfigProvider)(implicit ec: DatabaseExecutionContext) extends HasDatabaseConfigProvider[JdbcProfile] {
+  import driver.api._
+
+  def getDriver = driver
+  def database = db
 
   class SupplierTable(tag: Tag) extends Table[SupplierTableRow](tag, "SUPPLIERS") {
     // Every table needs a * projection with the same type as the table's type parameter
@@ -61,8 +73,8 @@ trait CoffeeRepository {
 
   lazy val CoffeeTable = new TableQuery(tag => new CoffeeTable(tag))
 
-  def dropCreateSchema(implicit db: Database, ec: ExecutionContext): Future[Unit] = {
-    val schema: profile.DDL = SupplierTable.schema ++ CoffeeTable.schema
+  def dropCreateSchema: Future[Unit] = {
+    val schema = SupplierTable.schema ++ CoffeeTable.schema
     db.run(schema.create)
       .recoverWith {
         case t: Throwable =>
@@ -73,7 +85,7 @@ trait CoffeeRepository {
   /**
    * Initializes the database; creates the schema and inserts supplies and coffees
    */
-  def initialize(implicit db: Database, ec: ExecutionContext): Future[Unit] = {
+  def initialize: Future[Unit] = {
     val setup: DBIOAction[Unit, NoStream, Effect.Write with Effect.Transactional] = DBIO.seq(
       // Insert some suppliers
       SupplierTable ++= Seq(
@@ -96,25 +108,21 @@ trait CoffeeRepository {
     dropCreateSchema.flatMap(_ => db.run(setup))
   }
 
-  def deleteCoffeeByName(name: String)(implicit db: Database): Future[Int] =
+  def deleteCoffeeByName(name: String): Future[Int] =
     db.run(CoffeeTable.filter(_.name === name).delete)
 
-  def deleteCoffee(coffee: CoffeeTableRow)(implicit db: Database): Future[Int] =
+  def deleteCoffee(coffee: CoffeeTableRow): Future[Int] =
     db.run(CoffeeTable.filter(_.name === coffee.name).delete)
 
-  def clearCoffeesTable(implicit db: Database): Future[Int] = db.run(CoffeeTable.delete)
+  def clearCoffeesTable: Future[Int] = db.run(CoffeeTable.delete)
 
-  def coffeeStream(implicit db: Database): DatabasePublisher[CoffeeTableRow] =
+  def coffeeStream: DatabasePublisher[CoffeeTableRow] =
     db.stream(CoffeeTable.result)
 
-  def coffee(name: String)(implicit db: Database): Future[Seq[CoffeeTableRow]] =
+  def coffee(name: String): Future[Seq[CoffeeTableRow]] =
     db.run(CoffeeTable.filter(_.name === name).result)
 
-  def listCoffees(limit: Long, offset: Long = Long.MaxValue)(implicit db: Database) =
+  def listCoffees(limit: Long, offset: Long = Long.MaxValue) =
     // select * from coffees limit $limit offset $offset
     db.run(CoffeeTable.drop(offset).take(limit).result)
-}
-
-object PostgresCoffeeRepository extends CoffeeRepository {
-  override val profile: JdbcProfile = slick.driver.PostgresDriver
 }

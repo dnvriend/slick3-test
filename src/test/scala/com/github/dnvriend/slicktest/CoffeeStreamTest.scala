@@ -14,22 +14,22 @@
  * limitations under the License.
  */
 
-package com.github.dnvriend
+package com.github.dnvriend.slicktest
 
-import akka.stream.scaladsl.Source
+import akka.stream.scaladsl.{ Sink, Source }
 import com.github.dnvriend.CoffeeRepository.CoffeeTableRow
+import com.github.dnvriend.TestSpec
 
 class CoffeeStreamTest extends TestSpec {
+  import profile.api._
+  import coffeeRepository._
 
   "DatabasePublisher" should "stream coffee" in {
-    Source.fromPublisher(PostgresCoffeeRepository.coffeeStream).runFold(Seq.empty[CoffeeTableRow]) {
-      case (seq, coffee) => seq :+ coffee
-    }.futureValue should not be 'empty
+    Source.fromPublisher(coffeeStream).runWith(Sink.seq).futureValue should not be 'empty
   }
 
   it should "be converted to an RxObservable" in {
-    import scala.collection.JavaConversions._
-    val xs = PostgresCoffeeRepository.coffeeStream.toObservable.toList.toBlocking.single()
+    val xs = Source.fromPublisher(coffeeStream).runWith(Sink.seq).futureValue
     xs.sortBy(_.name) shouldBe
       List(
         CoffeeTableRow("Colombian", 101, 7.99, 0, 0),

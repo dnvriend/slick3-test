@@ -14,12 +14,15 @@
  * limitations under the License.
  */
 
-package com.github.dnvriend
+package com.github.dnvriend.slicktest
 
-import com.github.dnvriend.PostgresCoffeeRepository._
-import com.github.dnvriend.PostgresCoffeeRepository.profile.api._
+import com.github.dnvriend.TestSpec
+import org.scalatest.Ignore
 
+@Ignore
 class GroupingTest extends TestSpec {
+  import profile.api._
+  import coffeeRepository._
 
   /**
    * Grouping is done with the groupBy method. It has the same semantics as for Scala collections.

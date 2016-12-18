@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
-package com.github.dnvriend
+package com.github.dnvriend.slicktest
 
-import com.github.dnvriend.PostgresPersonRepository._
-import com.github.dnvriend.PostgresPersonRepository.profile.api._
+import com.github.dnvriend.TestSpec
 
 class DateTimeTest extends TestSpec {
+  import profile.api._
+  import personRepository._
 
   "Persons" should "be ordered on date of birth asc" in {
     db.run(PersonTable.sortBy(_.dateOfBirth).result)

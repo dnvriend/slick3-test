@@ -16,15 +16,10 @@
 
 package com.github.dnvriend
 
-import akka.actor.{ExtendedActorSystem, Extension, ExtensionId, ExtensionIdProvider}
-import slick.jdbc.JdbcBackend
+import com.google.inject.AbstractModule
 
-object DbExtension extends ExtensionId[DbExtensionImpl] with ExtensionIdProvider {
-  override def createExtension(system: ExtendedActorSystem): DbExtensionImpl = new DbExtensionImpl()(system)
+class Module extends AbstractModule {
+  override def configure(): Unit = {
 
-  override def lookup(): ExtensionId[_ <: Extension] = DbExtension
-}
-
-class DbExtensionImpl()(implicit val system: ExtendedActorSystem) extends JdbcBackend with Extension {
-  implicit val db: Database = Database.forConfig("mydb", system.settings.config)
+  }
 }

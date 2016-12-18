@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
-package com.github.dnvriend
+package com.github.dnvriend.slicktest
 
-import com.github.dnvriend.PostgresCoffeeRepository._
-import com.github.dnvriend.PostgresCoffeeRepository.profile.api._
+import com.github.dnvriend.TestSpec
 
 class DeleteTest extends TestSpec {
+  import profile.api._
+  import coffeeRepository._
 
   /**
    * Deleting works very similarly to querying. You write a query which selects the rows to delete and then

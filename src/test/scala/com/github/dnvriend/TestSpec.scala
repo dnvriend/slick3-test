@@ -16,35 +16,91 @@
 
 package com.github.dnvriend
 
-import akka.actor._
-import akka.event.{ Logging, LoggingAdapter }
-import akka.stream.{ ActorMaterializer, Materializer }
+import akka.actor.{ ActorRef, ActorSystem, PoisonPill }
+import akka.stream.Materializer
+import akka.stream.scaladsl.Source
+import akka.stream.testkit.TestSubscriber
+import akka.stream.testkit.scaladsl.TestSink
+import akka.testkit.TestProbe
+import akka.util.Timeout
 import org.scalatest._
-import org.scalatest.concurrent.ScalaFutures
-import slick.jdbc.JdbcBackend
-import spray.json.DefaultJsonProtocol
+import org.scalatest.concurrent.{ Eventually, ScalaFutures }
+import org.scalatestplus.play.guice.GuiceOneServerPerSuite
+import org.slf4j.{ Logger, LoggerFactory }
+import play.api.inject.BindingKey
+import play.api.test.WsTestClient
 
 import scala.concurrent.duration._
 import scala.concurrent.{ ExecutionContext, Future }
+import scala.reflect.ClassTag
 import scala.util.Try
 
-trait TestSpec extends FlatSpec with Matchers with ScalaFutures with OptionValues with BeforeAndAfterEach with BeforeAndAfterAll with DefaultJsonProtocol with GivenWhenThen {
-  implicit val system: ActorSystem = ActorSystem()
-  implicit val ec: ExecutionContext = system.dispatcher
-  implicit val mat: Materializer = ActorMaterializer()
-  implicit val log: LoggingAdapter = Logging(system, this.getClass)
-  implicit val pc: PatienceConfig = PatienceConfig(timeout = 50.seconds)
-  implicit val db: JdbcBackend#Database = DbExtension(system).db
+class TestSpec extends FlatSpec
+    with Matchers
+    with GivenWhenThen
+    with OptionValues
+    with TryValues
+    with ScalaFutures
+    with WsTestClient
+    with BeforeAndAfterAll
+    with BeforeAndAfterEach
+    with Eventually
+    with GuiceOneServerPerSuite {
 
-  implicit class FutureToTry[T](f: Future[T]) {
-    def toTry: Try[T] = Try(f.futureValue)
+  val log: Logger = LoggerFactory.getLogger(this.getClass)
+
+  def getComponent[A: ClassTag] = app.injector.instanceOf[A]
+  def getAnnotatedComponent[A](name: String)(implicit ct: ClassTag[A]): A =
+    app.injector.instanceOf[A](BindingKey(ct.runtimeClass.asInstanceOf[Class[A]]).qualifiedWith(name))
+
+  // set the port number of the HTTP server
+  override lazy val port: Int = 8080
+  implicit val timeout: Timeout = 10.seconds
+  implicit val pc: PatienceConfig = PatienceConfig(timeout = 30.seconds, interval = 300.millis)
+  implicit val system: ActorSystem = getComponent[ActorSystem]
+  implicit val ec: ExecutionContext = getComponent[ExecutionContext]
+  implicit val mat: Materializer = getComponent[Materializer]
+  val personRepository: PersonRepository = getComponent[PersonRepository]
+  val coffeeRepository: CoffeeRepository = getComponent[CoffeeRepository]
+  val userRepository: UserRepository = getComponent[UserRepository]
+
+  val db = personRepository.database
+  val profile = personRepository.getDriver
+
+  // ================================== Supporting Operations ====================================
+  implicit class PimpedByteArray(self: Array[Byte]) {
+    def getString: String = new String(self)
+  }
+
+  implicit class PimpedFuture[T](self: Future[T]) {
+    def toTry: Try[T] = Try(self.futureValue)
+  }
+
+  implicit class SourceOps[A](src: Source[A, _]) {
+    def testProbe(f: TestSubscriber.Probe[A] => Unit): Unit =
+      f(src.runWith(TestSink.probe(system)))
+  }
+
+  def killActors(actors: ActorRef*): Unit = {
+    val tp = TestProbe()
+    actors.foreach { (actor: ActorRef) =>
+      tp watch actor
+      actor ! PoisonPill
+      tp.expectTerminated(actor)
+    }
   }
 
   override protected def beforeEach(): Unit = {
-    PostgresCoffeeRepository.initialize
-      .flatMap(_ => PostgresPersonRepository.initialize)
-      .flatMap(_ => PostgresUserRepository.initialize)
-      .toTry recover { case t: Throwable => log.error(t, "Could not initialize the database") } should be a 'success
+    Future.sequence(
+      List(
+        coffeeRepository.initialize,
+        personRepository.initialize,
+        userRepository.initialize
+      )
+    ).toTry recover {
+        case t: Throwable =>
+          log.error("Could not initialize the database", t)
+      } should be a 'success
   }
 
   override protected def afterAll(): Unit = {

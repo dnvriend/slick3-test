@@ -14,13 +14,14 @@
  * limitations under the License.
  */
 
-package com.github.dnvriend
+package com.github.dnvriend.slicktest
 
-import com.github.dnvriend.PostgresUserRepository._
-import com.github.dnvriend.PostgresUserRepository.profile.api._
+import com.github.dnvriend.TestSpec
 import com.github.dnvriend.UserRepository._
 
 class UpdateTest extends TestSpec {
+  import profile.api._
+  import userRepository._
 
   "UpdateTest" should "update a user" in {
     val userQuery = UserTable.filter(u => u.first === "Steve" && u.last === "Jobs")

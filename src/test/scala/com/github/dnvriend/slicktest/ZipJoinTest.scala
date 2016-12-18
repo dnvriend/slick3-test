@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
-package com.github.dnvriend
+package com.github.dnvriend.slicktest
 
-import com.github.dnvriend.PostgresCoffeeRepository._
-import com.github.dnvriend.PostgresCoffeeRepository.profile.api._
+import com.github.dnvriend.TestSpec
 
 class ZipJoinTest extends TestSpec {
+  import profile.api._
+  import coffeeRepository._
 
   /**
    * In addition to the usual applicative join operators supported by relational databases
@@ -34,8 +35,8 @@ class ZipJoinTest extends TestSpec {
     } yield (c.name, s.name)
 
     db.run(zipJoinQuery.result).futureValue shouldBe List(
-      ("Colombian", "Acme, Inc."),
-      ("French_Roast", "Superior Coffee"),
+      ("Colombian", "Superior Coffee"),
+      ("Colombian_Decaf", "Acme, Inc."),
       ("Espresso", "The High Ground")
     )
   }
@@ -46,8 +47,8 @@ class ZipJoinTest extends TestSpec {
     } yield res
 
     db.run(zipWithJoin.result).futureValue shouldBe List(
-      ("Colombian", "Acme, Inc."),
-      ("French_Roast", "Superior Coffee"),
+      ("Colombian", "Superior Coffee"),
+      ("Colombian_Decaf", "Acme, Inc."),
       ("Espresso", "The High Ground")
     )
   }
@@ -66,9 +67,9 @@ class ZipJoinTest extends TestSpec {
 
     db.run(zipWithIndexJoin.result).futureValue shouldBe List(
       ("Colombian", 0),
-      ("French_Roast", 1),
+      ("Colombian_Decaf", 1),
       ("Espresso", 2),
-      ("Colombian_Decaf", 3),
+      ("French_Roast", 3),
       ("French_Roast_Decaf", 4)
     )
   }

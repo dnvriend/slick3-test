@@ -14,13 +14,14 @@
  * limitations under the License.
  */
 
-package com.github.dnvriend
+package com.github.dnvriend.slicktest
 
-import CoffeeRepository._
-import com.github.dnvriend.PostgresCoffeeRepository._
-import com.github.dnvriend.PostgresCoffeeRepository.profile.api._
+import com.github.dnvriend.CoffeeRepository.CoffeeTableRow
+import com.github.dnvriend.TestSpec
 
 class UnionTest extends TestSpec {
+  import profile.api._
+  import coffeeRepository._
 
   /**
    * Two queries can be concatenated with the ++ (or unionAll) and union operators if they have compatible types.

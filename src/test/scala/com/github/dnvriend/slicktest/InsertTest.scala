@@ -14,15 +14,16 @@
  * limitations under the License.
  */
 
-package com.github.dnvriend
+package com.github.dnvriend.slicktest
 
 import com.github.dnvriend.CoffeeRepository._
-import com.github.dnvriend.PostgresCoffeeRepository._
-import com.github.dnvriend.PostgresUserRepository._
-import com.github.dnvriend.PostgresUserRepository.profile.api._
+import com.github.dnvriend.TestSpec
 import com.github.dnvriend.UserRepository._
 
 class InsertTest extends TestSpec {
+  import profile.api._
+  import coffeeRepository._
+  import userRepository._
 
   /**
    * Inserts are done based on a projection of columns from a single table. When you use the table directly,
@@ -66,8 +67,7 @@ class InsertTest extends TestSpec {
     // using this feature to return an object with an updated id.
     val userWithIdAction =
       (UserTable returning UserTable.map(_.id)
-        into ((user, id) => user.copy(id = Option(id)))
-      ) += UserTableRow(None, "Stefan", "Zeiger") // don't you like functional style :)
+        into ((user, id) => user.copy(id = Option(id)))) += UserTableRow(None, "Stefan", "Zeiger") // don't you like functional style :)
 
     db.run(userWithIdAction).futureValue should matchPattern {
       case UserTableRow(Some(id), "Stefan", "Zeiger") if id > 4 =>

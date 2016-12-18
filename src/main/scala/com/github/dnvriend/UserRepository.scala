@@ -16,36 +16,36 @@
 
 package com.github.dnvriend
 
+import javax.inject.{ Inject, Singleton }
+
 import com.github.dnvriend.UserRepository.UserTableRow
+import play.api.db.slick.{ DatabaseConfigProvider, HasDatabaseConfigProvider }
 import slick.driver.JdbcProfile
 
-import scala.concurrent.{ ExecutionContext, Future }
+import scala.concurrent.Future
 
 object UserRepository {
-
   final case class UserTableRow(id: Option[Int], first: String, last: String)
-
 }
 
-trait UserRepository {
-  val profile: slick.driver.JdbcProfile
+@Singleton
+class UserRepository @Inject() (protected val dbConfigProvider: DatabaseConfigProvider)(implicit ec: DatabaseExecutionContext) extends HasDatabaseConfigProvider[JdbcProfile] {
+  import driver.api._
 
-  import profile.api._
+  def getDriver = driver
+  def database = db
 
   class UserTable(tag: Tag) extends Table[UserTableRow](tag, "users") {
     def * = (id.?, first, last) <> (UserTableRow.tupled, UserTableRow.unapply)
-
     def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
-
     def first = column[String]("first")
-
     def last = column[String]("last")
   }
 
   lazy val UserTable = new TableQuery(tag => new UserTable(tag))
 
-  def dropCreateSchema(implicit db: Database, ec: ExecutionContext): Future[Unit] = {
-    val schema: profile.SchemaDescription = UserTable.schema
+  def dropCreateSchema: Future[Unit] = {
+    val schema = UserTable.schema
     db.run(schema.create)
       .recoverWith {
         case t: Throwable =>
@@ -56,8 +56,8 @@ trait UserRepository {
   /**
    * Initializes the database; creates the schema and inserts users
    */
-  def initialize(implicit db: Database, ec: ExecutionContext): Future[Unit] = {
-    val setup: DBIOAction[Unit, NoStream, Effect.Write with Effect.Transactional] = DBIO.seq(
+  def initialize: Future[Unit] = {
+    val setup = DBIO.seq(
       // insert some users
       UserTable ++= Seq(
         UserTableRow(None, "Bill", "Gates"),
@@ -69,8 +69,3 @@ trait UserRepository {
     dropCreateSchema.flatMap(_ => db.run(setup))
   }
 }
-
-object PostgresUserRepository extends UserRepository {
-  override val profile: JdbcProfile = slick.driver.PostgresDriver
-}
-

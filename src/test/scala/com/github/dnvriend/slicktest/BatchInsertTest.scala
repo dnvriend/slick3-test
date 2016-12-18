@@ -14,13 +14,14 @@
  * limitations under the License.
  */
 
-package com.github.dnvriend
+package com.github.dnvriend.slicktest
 
 import com.github.dnvriend.CoffeeRepository.CoffeeTableRow
-import com.github.dnvriend.PostgresCoffeeRepository._
-import com.github.dnvriend.PostgresCoffeeRepository.profile.api._
+import com.github.dnvriend.TestSpec
 
 class BatchInsertTest extends TestSpec {
+  import profile.api._
+  import coffeeRepository._
 
   "Inserting Coffee using batch insert" should "insert multiple rows" in {
     Given("An empty coffees table")

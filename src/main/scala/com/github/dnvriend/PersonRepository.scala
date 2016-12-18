@@ -19,19 +19,24 @@ package com.github.dnvriend
 import java.sql.{ Date, Timestamp }
 import java.text.SimpleDateFormat
 import java.util.UUID
+import javax.inject.{ Inject, Singleton }
 
 import com.github.dnvriend.PersonRepository.PersonTableRow
+import play.api.db.slick.{ DatabaseConfigProvider, HasDatabaseConfigProvider }
 import slick.driver.JdbcProfile
 
-import scala.concurrent.{ ExecutionContext, Future }
+import scala.concurrent.Future
 
 object PersonRepository {
   final case class PersonTableRow(name: String, dateOfBirth: Date, created: Timestamp = new Timestamp(System.currentTimeMillis()), id: String = UUID.randomUUID.toString)
 }
 
-trait PersonRepository {
-  val profile: slick.driver.JdbcProfile
-  import profile.api._
+@Singleton
+class PersonRepository @Inject() (protected val dbConfigProvider: DatabaseConfigProvider)(implicit ec: DatabaseExecutionContext) extends HasDatabaseConfigProvider[JdbcProfile] {
+  import driver.api._
+
+  def getDriver = driver
+  def database = db
 
   implicit class DateString(dateString: String) {
     def date: java.sql.Date = {
@@ -50,8 +55,8 @@ trait PersonRepository {
 
   lazy val PersonTable = new TableQuery(tag => new PersonTable(tag))
 
-  def dropCreateSchema(implicit db: Database, ec: ExecutionContext): Future[Unit] = {
-    val schema: profile.SchemaDescription = PersonTable.schema
+  def dropCreateSchema: Future[Unit] = {
+    val schema = PersonTable.schema
     db.run(schema.create)
       .recoverWith {
         case t: Throwable =>
@@ -62,7 +67,7 @@ trait PersonRepository {
   /**
    * Initializes the database; creates the schema and inserts persons
    */
-  def initialize(implicit db: Database, ec: ExecutionContext): Future[Unit] = {
+  def initialize: Future[Unit] = {
     val setup: DBIOAction[Unit, NoStream, Effect.Write with Effect.Transactional] = DBIO.seq(
       // Insert some persons
       PersonTable ++= Seq(
@@ -79,8 +84,3 @@ trait PersonRepository {
     dropCreateSchema.flatMap(_ => db.run(setup))
   }
 }
-
-object PostgresPersonRepository extends PersonRepository {
-  override val profile: JdbcProfile = slick.driver.PostgresDriver
-}
-

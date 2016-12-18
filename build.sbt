@@ -6,26 +6,27 @@ version := "1.0"
 
 scalaVersion := "2.11.8"
 
-libraryDependencies ++= {
-  val akkaVersion = "2.4.11"
-  val slickVersion = "3.1.1"
-  Seq(
-    "com.typesafe.akka" %% "akka-actor" % akkaVersion,
-    "com.typesafe.akka" %% "akka-stream" % akkaVersion,
-    "com.typesafe.akka" %% "akka-slf4j" % akkaVersion,
-    "ch.qos.logback" % "logback-classic" % "1.1.7",
-    "io.reactivex" %% "rxscala" % "0.26.2",
-    "io.reactivex" % "rxjava-reactive-streams" % "1.1.1",
-    "com.typesafe.slick" %% "slick" % slickVersion,
-    "com.typesafe.slick" %% "slick-hikaricp" % slickVersion exclude("com.zaxxer", "HikariCP-java6"),
-    "com.zaxxer" % "HikariCP" % "2.5.1",
-    "org.postgresql" % "postgresql" % "9.4.1211",
-    "com.typesafe.akka" %% "akka-http-spray-json-experimental" % akkaVersion,
-    "com.typesafe.akka" %% "akka-stream-testkit" % akkaVersion % Test,
-    "com.typesafe.akka" %% "akka-testkit" % akkaVersion % Test,
-    "org.scalatest" %% "scalatest" % "2.2.6" % Test
-  )
-}
+libraryDependencies += "org.scalaz" %% "scalaz-core" % "7.2.8"
+
+libraryDependencies += "com.typesafe.akka" %% "akka-actor" % "2.4.12"
+libraryDependencies += "com.typesafe.akka" %% "akka-stream" % "2.4.12"
+libraryDependencies += "com.typesafe.akka" %% "akka-slf4j" % "2.4.12"
+
+libraryDependencies += "com.h2database" % "h2" % "1.4.193"
+
+libraryDependencies += "ch.qos.logback" % "logback-classic" % "1.1.7"
+// https://www.playframework.com/documentation/2.5.x/PlaySlick
+libraryDependencies += "com.typesafe.play" %% "play-slick" % "2.0.2"
+libraryDependencies += "com.typesafe.play" %% "play-slick-evolutions" % "2.0.2"
+//libraryDependencies += "com.typesafe.slick" %% "slick" % "3.2.0-M2"
+//libraryDependencies += "com.typesafe.slick" %% "slick-hikaricp" % "3.2.0-M2"
+libraryDependencies += "com.typesafe.slick" %% "slick" % "3.1.1"
+libraryDependencies += "com.typesafe.slick" %% "slick-hikaricp" % "3.1.1"
+
+libraryDependencies += "com.typesafe.akka" %% "akka-stream-testkit" % "2.4.12" % Test
+libraryDependencies += "com.typesafe.akka" %% "akka-testkit" % "2.4.12" % Test
+libraryDependencies += "org.scalatestplus.play" %% "scalatestplus-play" % "2.0.0-M1" % Test
+libraryDependencies += "org.typelevel" %% "scalaz-scalatest" % "1.1.1" % Test
 
 fork in Test := true
 
@@ -33,17 +34,14 @@ parallelExecution := false
 
 licenses +=("Apache-2.0", url("http://opensource.org/licenses/apache2.0.php"))
 
-// enable scala code formatting //
 import scalariform.formatter.preferences._
+import com.typesafe.sbt.SbtScalariform
 
-scalariformSettings
-
-ScalariformKeys.preferences := ScalariformKeys.preferences.value
+SbtScalariform.autoImport.scalariformPreferences := SbtScalariform.autoImport.scalariformPreferences.value
   .setPreference(AlignSingleLineCaseStatements, true)
   .setPreference(AlignSingleLineCaseStatements.MaxArrowIndent, 100)
   .setPreference(DoubleIndentClassDeclaration, true)
 
-// enable updating file headers //
 import de.heikoseeberger.sbtheader.license.Apache2_0
 
 headers := Map(
@@ -52,3 +50,6 @@ headers := Map(
 )
 
 enablePlugins(AutomateHeaderPlugin)
+enablePlugins(SbtScalariform)
+enablePlugins(PlayScala)
+disablePlugins(PlayLayoutPlugin)

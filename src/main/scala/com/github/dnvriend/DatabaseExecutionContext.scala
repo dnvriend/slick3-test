@@ -14,13 +14,17 @@
  * limitations under the License.
  */
 
-package com.github
+package com.github.dnvriend
 
-import org.reactivestreams.Publisher
-import rx.RxReactiveStreams
+import javax.inject.{ Inject, Singleton }
 
-package object dnvriend {
-  implicit class PublisherToRxObservable[T](publisher: Publisher[T]) {
-    def toObservable = RxReactiveStreams.toObservable(publisher)
-  }
+import akka.actor.ActorSystem
+
+import scala.concurrent.ExecutionContext
+
+@Singleton
+class DatabaseExecutionContext @Inject() (system: ActorSystem) extends ExecutionContext {
+  val ec: ExecutionContext = system.dispatchers.lookup("contexts.database")
+  override def execute(runnable: Runnable): Unit = ec.execute(runnable)
+  override def reportFailure(cause: Throwable): Unit = ec.reportFailure(cause)
 }

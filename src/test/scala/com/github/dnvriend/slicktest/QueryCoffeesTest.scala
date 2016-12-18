@@ -14,13 +14,14 @@
  * limitations under the License.
  */
 
-package com.github.dnvriend
+package com.github.dnvriend.slicktest
 
-import CoffeeRepository._
-import com.github.dnvriend.PostgresCoffeeRepository._
-import com.github.dnvriend.PostgresCoffeeRepository.profile.api._
+import com.github.dnvriend.CoffeeRepository.CoffeeTableRow
+import com.github.dnvriend.TestSpec
 
 class QueryCoffeesTest extends TestSpec {
+  import profile.api._
+  import coffeeRepository._
 
   /**
    * A Query can be converted into an Action by calling its `result` method.
@@ -133,7 +134,7 @@ class QueryCoffeesTest extends TestSpec {
   it should "get the name field only" in {
     // SELECT NAME FROM COFFEES
     db.run(CoffeeTable.map(_.name).result).futureValue shouldBe
-      List("Colombian", "French_Roast", "Espresso", "Colombian_Decaf", "French_Roast_Decaf")
+      List("Colombian", "Colombian_Decaf", "Espresso", "French_Roast", "French_Roast_Decaf")
   }
 
   it should "get coffees sorted by name, null values first" in {
